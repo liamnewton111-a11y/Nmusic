@@ -1,0 +1,16 @@
+{
+  "name": "MelodyManager",
+  "short_name": "MelodyManager",
+  "description": "Music Teaching Business Manager with Jewish Calendar",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#6c5ce7",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

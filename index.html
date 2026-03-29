@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MelodyManager - Music Teaching Business</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <style>
+/* ===== CSS Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.5; }
+
+/* ===== Light Theme ===== */
+[data-theme="light"] {
+  --bg-primary: #f8f9fa; --bg-secondary: #ffffff; --bg-tertiary: #f0f0f5;
+  --bg-hover: #e9ecef; --bg-accent: #6c5ce7; --bg-accent-hover: #5a4bd1;
+  --bg-accent-light: rgba(108,92,231,0.1); --bg-success: #00b894;
+  --bg-success-light: rgba(0,184,148,0.1); --bg-warning: #fdcb6e;
+  --bg-warning-light: rgba(253,203,110,0.15); --bg-danger: #e17055;
+  --bg-danger-light: rgba(225,112,85,0.1); --bg-info: #74b9ff;
+  --bg-info-light: rgba(116,185,255,0.1);
+  --text-primary: #2d3436; --text-secondary: #636e72; --text-tertiary: #b2bec3;
+  --text-accent: #6c5ce7; --border-color: #dfe6e9; --border-light: #f0f0f5;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08); --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --sidebar-bg: #ffffff; --sidebar-border: #eee; --card-bg: #ffffff;
+  --jewish-gold: #c8a84e; --jewish-gold-light: rgba(200,168,78,0.12);
+  --shabbat-color: #6c5ce7; --shabbat-light: rgba(108,92,231,0.08);
+}
+
+/* ===== Dark Theme ===== */
+[data-theme="dark"] {
+  --bg-primary: #0f0f1a; --bg-secondary: #1a1a2e; --bg-tertiary: #16213e;
+  --bg-hover: #222244; --bg-accent: #6c5ce7; --bg-accent-hover: #7d6ff0;
+  --bg-accent-light: rgba(108,92,231,0.15); --bg-success: #00b894;
+  --bg-success-light: rgba(0,184,148,0.15); --bg-warning: #fdcb6e;
+  --bg-warning-light: rgba(253,203,110,0.12); --bg-danger: #e17055;
+  --bg-danger-light: rgba(225,112,85,0.15); --bg-info: #74b9ff;
+  --bg-info-light: rgba(116,185,255,0.15);
+  --text-primary: #edf2f7; --text-secondary: #a0aec0; --text-tertiary: #4a5568;
+  --text-accent: #a29bfe; --border-color: #2d2d50; --border-light: #1e1e3a;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --sidebar-bg: #1a1a2e; --sidebar-border: #2d2d50; --card-bg: #1a1a2e;
+  --jewish-gold: #f0d78c; --jewish-gold-light: rgba(240,215,140,0.1);
+  --shabbat-color: #a29bfe; --shabbat-light: rgba(162,155,254,0.1);
+}
+
+body { background: var(--bg-primary); color: var(--text-primary); transition: background 0.3s, color 0.3s; min-height: 100vh; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+.app-layout { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; transition: transform 0.3s, background 0.3s; }
+.sidebar-header { padding: 20px 16px; border-bottom: 1px solid var(--border-color); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; }
+.sidebar-logo-icon { width: 36px; height: 36px; background: var(--bg-accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
+.sidebar-logo h1 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.sidebar-logo span { font-size: 11px; color: var(--text-secondary); display: block; margin-top: 1px; }
+.sidebar-nav { flex: 1; padding: 10px; overflow-y: auto; }
+.sidebar-section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); padding: 8px 10px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: all 0.2s; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active { background: var(--bg-accent-light); color: var(--text-accent); }
+.nav-badge { margin-left: auto; background: var(--bg-accent); color: white; font-size: 10px; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
+
+/* Main */
+.main-content { flex: 1; margin-left: 250px; padding: 20px 28px; min-height: 100vh; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.page-header h2 { font-size: 24px; font-weight: 700; }
+.page-header-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Cards */
+.card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; transition: all 0.2s; }
+.card:hover { box-shadow: var(--shadow-md); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 15px; font-weight: 600; }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; align-items: flex-start; gap: 14px; transition: all 0.2s; cursor: pointer; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+.stat-icon.purple { background: var(--bg-accent-light); color: var(--bg-accent); }
+.stat-icon.green { background: var(--bg-success-light); color: var(--bg-success); }
+.stat-icon.orange { background: var(--bg-warning-light); color: #e67e22; }
+.stat-icon.blue { background: var(--bg-info-light); color: var(--bg-info); }
+.stat-icon.gold { background: var(--jewish-gold-light); color: var(--jewish-gold); }
+.stat-info h3 { font-size: 24px; font-weight: 700; line-height: 1.2; }
+.stat-info p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; font-family: inherit; }
+.btn-primary { background: var(--bg-accent); color: white; }
+.btn-primary:hover { background: var(--bg-accent-hover); }
+.btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+.btn-secondary:hover { background: var(--bg-hover); }
+.btn-danger { background: var(--bg-danger-light); color: var(--bg-danger); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-icon { padding: 6px; border-radius: 6px; background: none; border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* Forms */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 4px; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-size: 13px; font-family: inherit; transition: border-color 0.2s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--bg-accent); box-shadow: 0 0 0 3px var(--bg-accent-light); }
+.form-textarea { min-height: 70px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-color); }
+td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border-light); }
+tr:hover td { background: var(--bg-hover); }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; }
+.badge-success { background: var(--bg-success-light); color: var(--bg-success); }
+.badge-warning { background: var(--bg-warning-light); color: #e67e22; }
+.badge-danger { background: var(--bg-danger-light); color: var(--bg-danger); }
+.badge-info { background: var(--bg-info-light); color: #0984e3; }
+.badge-purple { background: var(--bg-accent-light); color: var(--text-accent); }
+.badge-gold { background: var(--jewish-gold-light); color: var(--jewish-gold); }
+
+/* Calendar */
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-hdr { padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; }
+.cal-day { min-height: 90px; padding: 5px 6px; border: 1px solid var(--border-light); border-radius: 5px; cursor: pointer; transition: all 0.2s; position: relative; }
+.cal-day:hover { background: var(--bg-hover); border-color: var(--border-color); }
+.cal-day.today { border-color: var(--bg-accent); background: var(--bg-accent-light); }
+.cal-day.other { opacity: 0.3; }
+.cal-day.shabbat { background: var(--shabbat-light); }
+.cal-day.holiday { background: var(--jewish-gold-light); }
+.cal-day.closed { background: var(--bg-danger-light); }
+.day-num { font-size: 13px; font-weight: 600; }
+.heb-date { font-size: 9px; color: var(--jewish-gold); margin-top: 1px; }
+.day-ev { font-size: 9px; padding: 1px 3px; border-radius: 2px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-ev.jewish { background: var(--jewish-gold-light); color: var(--jewish-gold); }
+.day-ev.american { background: var(--bg-info-light); color: #0984e3; }
+.day-ev.lesson { background: var(--bg-accent-light); color: var(--text-accent); }
+
+/* Week View */
+.week-view { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 14px; }
+.week-col { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; min-height: 180px; }
+.week-col.today-col { border-color: var(--bg-accent); }
+.week-day-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border-light); }
+.week-day-name.today-n { color: var(--bg-accent); }
+.lesson-card { background: var(--bg-accent-light); border-left: 3px solid var(--bg-accent); border-radius: 6px; padding: 7px 9px; margin-bottom: 6px; cursor: pointer; transition: all 0.2s; }
+.lesson-card:hover { transform: scale(1.02); box-shadow: var(--shadow-sm); }
+.lesson-time { font-size: 10px; font-weight: 600; color: var(--text-accent); }
+.lesson-school { font-size: 12px; font-weight: 500; margin-top: 1px; }
+.lesson-details { font-size: 10px; color: var(--text-secondary); margin-top: 3px; }
+
+/* Today Banner */
+.today-banner { background: linear-gradient(135deg, var(--bg-accent), #a29bfe); border-radius: 14px; padding: 22px 26px; color: white; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+.today-banner h3 { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+.today-banner p { font-size: 13px; opacity: 0.9; }
+.hebrew-today { font-size: 14px; color: #f0d78c; margin-top: 5px; font-weight: 500; }
+.today-count { font-size: 44px; font-weight: 700; opacity: 0.9; }
+
+/* Modal */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.2s; }
+.modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; width: 90%; max-width: 480px; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.modal-title { font-size: 18px; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--text-tertiary); cursor: pointer; padding: 4px; font-size: 20px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Theme Toggle */
+.theme-toggle { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: var(--bg-tertiary); border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; }
+.toggle-track { width: 36px; height: 20px; background: var(--border-color); border-radius: 10px; position: relative; transition: background 0.3s; }
+.toggle-track.on { background: var(--bg-accent); }
+.toggle-thumb { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.3s; }
+.toggle-track.on .toggle-thumb { transform: translateX(16px); }
+
+/* Holiday list */
+.holiday-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: var(--bg-tertiary); margin-bottom: 6px; }
+.holiday-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.holiday-dot.jewish { background: var(--jewish-gold); }
+.holiday-dot.american { background: var(--bg-info); }
+.holiday-info { flex: 1; }
+.holiday-name { font-size: 13px; font-weight: 500; }
+.holiday-date-text { font-size: 11px; color: var(--text-secondary); }
+
+/* Search */
+.search-bar { display: flex; align-items: center; gap: 8px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; padding: 0 12px; }
+.search-bar input { border: none; background: none; padding: 8px 0; color: var(--text-primary); font-size: 13px; width: 180px; font-family: inherit; outline: none; }
+
+/* Empty */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-tertiary); }
+.empty-state h3 { font-size: 16px; color: var(--text-secondary); margin-bottom: 6px; }
+.empty-state p { font-size: 13px; margin-bottom: 16px; }
+
+/* Mobile menu */
+.mobile-menu-btn { display: none; position: fixed; top: 14px; left: 14px; z-index: 200; padding: 8px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; color: var(--text-primary); }
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; padding: 16px; padding-top: 56px; }
+  .mobile-menu-btn { display: flex; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .week-view { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .cal-day { min-height: 50px; padding: 3px; }
+  .today-banner { flex-direction: column; text-align: center; gap: 12px; }
+  .two-col { grid-template-columns: 1fr !important; }
+}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cal-grid-week { gap: 4px; }
+.cal-grid-week .cal-hdr { font-size: 13px; padding: 12px 4px; }
+.cal-day-lg { min-height: 180px; padding: 10px 12px; }
+.cal-day-lg .day-num { font-size: 18px; font-weight: 700; }
+.cal-day-lg .heb-date { font-size: 12px; margin-top: 2px; }
+.cal-day-lg .day-ev { font-size: 12px; padding: 5px 8px; margin-bottom: 4px; border-radius: 5px; white-space: normal; }
+.day-ev.lesson-paid { background: var(--bg-success-light); color: var(--bg-success); }
+.btn-success { background: var(--bg-success-light); color: var(--bg-success); border: 1px solid var(--bg-success); }
+.btn-success:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel" data-type="module">
+// ============================================================
+// UTILITY: Local Storage
+// ============================================================
+const KEYS = { SCHOOLS: 'mm_schools', LESSONS: 'mm_lessons', PAYMENTS: 'mm_payments', TEACHERS: 'mm_teachers', NOTES: 'mm_notes', SETTINGS: 'mm_settings', CLOSED: 'mm_closed_dates' };
+
+function getData(k) { try { const d = localStorage.getItem(k); return d ? JSON.parse(d) : null; } catch { return null; } }
+function setData(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+function getAll(k, def=[]) { return getData(k) || def; }
+
+function addItem(key, item) { const items = getAll(key); item.id = crypto.randomUUID(); item.createdAt = new Date().toISOString(); items.push(item); setData(key, items); return item; }
+function updateItem(key, id, updates) { const items = getAll(key); const i = items.findIndex(x => x.id === id); if (i !== -1) { items[i] = { ...items[i], ...updates }; setData(key, items); } }
+function deleteItem(key, id) { setData(key, getAll(key).filter(x => x.id !== id)); }
+
+const getSchools = () => getAll(KEYS.SCHOOLS);
+const getLessons = () => getAll(KEYS.LESSONS);
+const getTeachers = () => getAll(KEYS.TEACHERS);
+const getPayments = () => getAll(KEYS.PAYMENTS);
+const getNotes = () => getAll(KEYS.NOTES);
+const getClosedDates = () => getAll(KEYS.CLOSED);
+const getSettings = () => getData(KEYS.SETTINGS) || { theme: 'dark', notificationsEnabled: true, notificationTime: '07:00', businessName: 'Music Teaching' };
+
+const LESSON_PAYMENTS_KEY = 'mm_lesson_payments';
+function getLessonPayments() { return getData(LESSON_PAYMENTS_KEY) || {}; }
+function saveLessonPayments(p) { setData(LESSON_PAYMENTS_KEY, p); }
+function markLessonPaid(lessonId, dateStr) { const p = getLessonPayments(); p[`${lessonId}:${dateStr}`] = { paid: true, paidAt: new Date().toISOString() }; saveLessonPayments(p); }
+function markLessonUnpaid(lessonId, dateStr) { const p = getLessonPayments(); delete p[`${lessonId}:${dateStr}`]; saveLessonPayments(p); }
+function isLessonPaid(lessonId, dateStr) { const p = getLessonPayments(); return !!p[`${lessonId}:${dateStr}`]?.paid; }
+
+// ============================================================
+// UTILITY: Jewish Calendar
+// ============================================================
+function hebrewElapsedDays(y) { const m = Math.floor((235*y-234)/19); const p = 12084+13753*m; let d = 29*m+Math.floor(p/25920); if(3*(d+1)%7<3) d++; return d; }
+function hebrewYearDays(y) { return hebrewElapsedDays(y+1)-hebrewElapsedDays(y); }
+function isLeapYear(y) { return ((7*y+1)%19)<7; }
+
+function gregorianToJD(y,m,d) { const a=Math.floor((14-m)/12); const yy=y+4800-a; const mm=m+12*a-3; return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045; }
+function jdToGregorian(jd) { const a=jd+32044; const b=Math.floor((4*a+3)/146097); const c=a-Math.floor(146097*b/4); const d=Math.floor((4*c+3)/1461); const e=c-Math.floor(1461*d/4); const m=Math.floor((5*e+2)/153); return { year:100*b+d-4800+Math.floor(m/10), month:m+3-12*Math.floor(m/10), day:e-Math.floor((153*m+2)/5)+1 }; }
+
+function hebrewMonthDays(y, m) {
+  const yd = hebrewYearDays(y);
+  if(m===2) return yd%10===5?30:29;
+  if(m===3) return yd%10===3?29:30;
+  if(m===6) return isLeapYear(y)?30:29;
+  if(m===7) return 29;
+  if([1,5,8,10,12].includes(m)) return 30;
+  return 29;
+}
+
+const HEB_MONTHS = ['','Tishrei','Cheshvan','Kislev','Tevet','Shevat','Adar','Adar II','Nisan','Iyar','Sivan','Tammuz','Av','Elul'];
+const HEB_MONTHS_HEB = ['','תשרי','חשון','כסלו','טבת','שבט','אדר','אדר ב׳','ניסן','אייר','סיון','תמוז','אב','אלול'];
+
+function hebNum(n) {
+  const o=['','א','ב','ג','ד','ה','ו','ז','ח','ט'];
+  const t=['','י','כ','ל'];
+  if(n===15) return 'ט״ו'; if(n===16) return 'ט״ז';
+  if(n<=9) return o[n]; if(n<=30) { return t[Math.floor(n/10)]+(n%10?'׳'+o[n%10]:''); }
+  return String(n);
+}
+
+function gregToHeb(gY, gM, gD) {
+  let hY = gY + 3760 + (gM >= 9 ? 1 : 0);
+  const tJD = gregorianToJD(gY, gM, gD);
+  let t1 = hebrewElapsedDays(hY) + 347997;
+  while(t1 > tJD) { hY--; t1 = hebrewElapsedDays(hY) + 347997; }
+  let nt = hebrewElapsedDays(hY+1) + 347997;
+  while(nt <= tJD) { hY++; t1 = nt; nt = hebrewElapsedDays(hY+1) + 347997; }
+  let doy = tJD - t1 + 1;
+  let hM = 1;
+  const max = isLeapYear(hY) ? 13 : 12;
+  for(let m=1; m<=max; m++) { const md = hebrewMonthDays(hY, m); if(doy <= md) { hM = m; break; } doy -= md; hM = m+1; }
+  return { year: hY, month: hM, day: doy, monthName: HEB_MONTHS[hM]||'', monthHeb: HEB_MONTHS_HEB[hM]||'', dayHeb: hebNum(doy) };
+}
+
+function getHebStr(date) { const h=gregToHeb(date.getFullYear(), date.getMonth()+1, date.getDate()); return `${h.dayHeb} ${h.monthHeb}`; }
+function getHebStrEng(date) { const h=gregToHeb(date.getFullYear(), date.getMonth()+1, date.getDate()); return `${h.day} ${h.monthName} ${h.year}`; }
+
+function nthWeekday(y,m,wd,n) { const f=new Date(y,m-1,1); let d=1+((wd-f.getDay()+7)%7)+(n-1)*7; return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function lastWeekday(y,m,wd) { const l=new Date(y,m,0); const d=l.getDate()-((l.getDay()-wd+7)%7); return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function fmtD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+function hebToGreg(hY, hM, hD) {
+  let t1 = hebrewElapsedDays(hY) + 347997;
+  let total = 0;
+  const max = isLeapYear(hY) ? 13 : 12;
+  for(let m=1; m<hM && m<=max; m++) total += hebrewMonthDays(hY, m);
+  total += hD - 1;
+  return jdToGregorian(t1 + total);
+}
+
+function getJewishHolidays(gY) {
+  const holidays = [];
+  const sHY = gY + 3760; // spring
+  const fHY = gY + 3761; // fall
+  function add(hY, hM, hD, name, noWork=false, dur=1) {
+    for(let i=0;i<dur;i++) {
+      const g = hebToGreg(hY, hM, hD+i);
+      const ds = `${g.year}-${String(g.month).padStart(2,'0')}-${String(g.day).padStart(2,'0')}`;
+      if(ds.startsWith(String(gY))) holidays.push({ date:ds, name: dur>1&&i>0?`${name} (Day ${i+1})`:name, type:'jewish', noWork });
+    }
+  }
+  // Fall
+  add(fHY,1,1,'Rosh Hashanah',true,2);
+  add(fHY,1,3,'Tzom Gedaliah');
+  add(fHY,1,10,'Yom Kippur',true);
+  add(fHY,1,15,'Sukkot',true,2);
+  add(fHY,1,17,'Chol HaMoed Sukkot',false,4);
+  add(fHY,1,21,'Hoshana Rabbah');
+  add(fHY,1,22,'Shemini Atzeret',true);
+  add(fHY,1,23,'Simchat Torah',true);
+  add(fHY,3,25,'Chanukah',false,8);
+  // Spring
+  const pm = isLeapYear(sHY)?7:6;
+  add(sHY,pm,14,'Purim');
+  add(sHY,pm,15,'Shushan Purim');
+  add(sHY,8,15,'Passover',true,2);
+  add(sHY,8,17,'Chol HaMoed Pesach',false,4);
+  add(sHY,8,21,'Passover (7th)',true);
+  add(sHY,8,22,'Passover (8th)',true);
+  add(sHY,9,5,'Yom HaZikaron');
+  add(sHY,9,6,'Yom HaAtzmaut');
+  add(sHY,9,18,'Lag BaOmer');
+  add(sHY,10,6,'Shavuot',true,2);
+  add(sHY,12,9,"Tisha B'Av");
+  add(sHY,12,15,"Tu B'Av");
+  return holidays;
+}
+
+function getAmericanHolidays(y) {
+  const h = [];
+  h.push({date:`${y}-01-01`,name:"New Year's Day",type:'american',noWork:true});
+  h.push({date:nthWeekday(y,1,1,3),name:'MLK Jr. Day',type:'american',noWork:true});
+  h.push({date:nthWeekday(y,2,1,3),name:"Presidents' Day",type:'american',noWork:true});
+  h.push({date:lastWeekday(y,5,1),name:'Memorial Day',type:'american',noWork:true});
+  h.push({date:`${y}-06-19`,name:'Juneteenth',type:'american',noWork:true});
+  h.push({date:`${y}-07-04`,name:'Independence Day',type:'american',noWork:true});
+  h.push({date:nthWeekday(y,9,1,1),name:'Labor Day',type:'american',noWork:true});
+  h.push({date:nthWeekday(y,10,1,2),name:'Columbus Day',type:'american',noWork:false});
+  h.push({date:`${y}-11-11`,name:'Veterans Day',type:'american',noWork:false});
+  h.push({date:nthWeekday(y,11,4,4),name:'Thanksgiving',type:'american',noWork:true});
+  const tg=new Date(nthWeekday(y,11,4,4));tg.setDate(tg.getDate()+1);
+  h.push({date:fmtD(tg),name:'Day after Thanksgiving',type:'american',noWork:true});
+  h.push({date:`${y}-12-25`,name:'Christmas',type:'american',noWork:true});
+  return h;
+}
+
+function getAllHolidays(y) { return [...getJewishHolidays(y), ...getAmericanHolidays(y)]; }
+
+function getUpcomingHolidays(count=8) {
+  const today = fmtD(new Date());
+  const y = new Date().getFullYear();
+  const all = [...getAllHolidays(y), ...getAllHolidays(y+1)].filter(h=>h.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
+  const seen = new Set(); const unique = [];
+  for(const h of all) { const k=h.date+h.name; if(!seen.has(k)){seen.add(k);unique.push(h);} }
+  return unique.slice(0,count);
+}
+
+function isSchoolClosed(dateStr, closedDates=[]) {
+  const d = new Date(dateStr+'T12:00:00');
+  if(d.getDay()===6) return {closed:true, reason:'Shabbat'};
+  const custom = closedDates.find(c=>c.date===dateStr);
+  if(custom) return {closed:true, reason:custom.reason||'Closed'};
+  const y = d.getFullYear();
+  const hol = getAllHolidays(y).find(h=>h.date===dateStr&&h.noWork);
+  if(hol) return {closed:true, reason:hol.name};
+  return {closed:false};
+}
+
+function doesLessonOccurOnDate(lesson, dateStr) {
+  const date = new Date(dateStr + 'T12:00:00');
+  if (lesson.dayOfWeek !== date.getDay()) return false;
+  const freq = lesson.frequency || 'weekly';
+  if (freq === 'weekly') return true;
+  const startDate = lesson.startDate ? new Date(lesson.startDate + 'T12:00:00') : new Date(lesson.createdAt);
+  if (freq === 'biweekly') {
+    const diffDays = Math.round((date.getTime() - startDate.getTime()) / (1000*60*60*24));
+    return Math.round(diffDays / 7) % 2 === 0;
+  }
+  if (freq === 'monthly') {
+    return Math.ceil(startDate.getDate() / 7) === Math.ceil(date.getDate() / 7);
+  }
+  return true;
+}
+
+// ============================================================
+// NOTIFICATION SYSTEM
+// ============================================================
+async function requestNotifPerm() {
+  if(!('Notification' in window)) return false;
+  if(Notification.permission==='granted') return true;
+  return (await Notification.requestPermission())==='granted';
+}
+
+function sendNotif(title,body,tag='daily') {
+  if(Notification.permission!=='granted') return;
+  new Notification(title,{body,tag});
+}
+
+function checkMorningNotif(lessons,schools,settings) {
+  if(!settings.notificationsEnabled) return;
+  const now = new Date();
+  const [th,tm] = (settings.notificationTime||'07:00').split(':').map(Number);
+  if(now.getHours()!==th||now.getMinutes()!==tm) return;
+  const last = localStorage.getItem('mm_last_notif');
+  if(last===now.toDateString()) return;
+  const dow = now.getDay();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const todayL = lessons.filter(l=>l.dayOfWeek===dow).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+  if(todayL.length===0) { sendNotif('Good Morning!','No lessons today. Enjoy your day off!'); }
+  else {
+    const names = todayL.map(l=>{const s=schools.find(x=>x.id===l.schoolId); return s?`${s.name} at ${l.startTime}`:`Lesson at ${l.startTime}`;});
+    sendNotif(`${todayL.length} lesson${todayL.length>1?'s':''} today`, names.join(', '));
+  }
+  localStorage.setItem('mm_last_notif', now.toDateString());
+}
+
+// ============================================================
+// REACT COMPONENTS
+// ============================================================
+const {useState, useEffect, useCallback} = React;
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// ---- Modal ----
+function Modal({title, children, onClose, width}) {
+  return React.createElement('div', {className:'modal-overlay', onClick:onClose},
+    React.createElement('div', {className:'modal', style:width?{maxWidth:width}:{}, onClick:e=>e.stopPropagation()},
+      React.createElement('div', {className:'modal-header'},
+        React.createElement('h3', {className:'modal-title'}, title),
+        React.createElement('button', {className:'modal-close', onClick:onClose}, '×')
+      ),
+      children
+    )
+  );
+}
+
+// ---- Dashboard ----
+function Dashboard({onNav}) {
+  const schools=getSchools(), lessons=getLessons(), payments=getPayments(), teachers=getTeachers();
+  const today=new Date(), dow=today.getDay();
+  const todayL=lessons.filter(l=>l.dayOfWeek===dow).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+  const totalPaid=payments.filter(p=>p.status==='paid').reduce((s,p)=>s+Number(p.amount||0),0);
+  const totalOwed=payments.filter(p=>p.status!=='paid').reduce((s,p)=>s+Number(p.amount||0),0);
+  const overdue=payments.filter(p=>p.status==='overdue').length;
+  const hebEng=getHebStrEng(today), hebHeb=getHebStr(today);
+  const upcoming=getUpcomingHolidays(6);
+  const tmrDow=(dow+1)%7;
+  const tmrL=lessons.filter(l=>l.dayOfWeek===tmrDow).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+  const greeting=today.getHours()<12?'Morning':today.getHours()<17?'Afternoon':'Evening';
+
+  return React.createElement('div', null,
+    // Banner
+    React.createElement('div', {className:'today-banner'},
+      React.createElement('div', {style:{textAlign:'center',width:'100%'}},
+        React.createElement('h3', null, `Good ${greeting}!`),
+        React.createElement('p', null, `${DAY_NAMES[dow]}, ${today.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`),
+        React.createElement('div', {className:'hebrew-today'}, hebHeb),
+        React.createElement('div', {style:{fontSize:13,opacity:0.85,marginTop:2}}, hebEng),
+        dow===6 && React.createElement('div', {style:{marginTop:6,fontSize:13}}, 'Shabbat Shalom!'),
+        dow===5 && React.createElement('div', {style:{marginTop:6,fontSize:13}}, 'Shabbat starts tonight!')
+      )
+    ),
+    // Stats
+    React.createElement('div', {className:'stats-grid'},
+      React.createElement('div', {className:'stat-card', onClick:()=>onNav('schools')},
+        React.createElement('div', {className:'stat-icon purple'}, '🏫'),
+        React.createElement('div', {className:'stat-info'}, React.createElement('h3',null,schools.length), React.createElement('p',null,'Active Schools'))
+      ),
+      React.createElement('div', {className:'stat-card', onClick:()=>onNav('schedule')},
+        React.createElement('div', {className:'stat-icon blue'}, '📅'),
+        React.createElement('div', {className:'stat-info'}, React.createElement('h3',null,lessons.length), React.createElement('p',null,'Weekly Lessons'))
+      ),
+      React.createElement('div', {className:'stat-card', onClick:()=>onNav('payments')},
+        React.createElement('div', {className:'stat-icon green'}, '💰'),
+        React.createElement('div', {className:'stat-info'}, React.createElement('h3',null,`$${totalPaid.toLocaleString()}`), React.createElement('p',null,'Total Collected'))
+      ),
+      React.createElement('div', {className:'stat-card', onClick:()=>onNav('payments')},
+        React.createElement('div', {className:'stat-icon orange'}, '⚠️'),
+        React.createElement('div', {className:'stat-info'}, React.createElement('h3',null,`$${totalOwed.toLocaleString()}`), React.createElement('p',null,`Outstanding${overdue>0?` (${overdue} overdue)`:''}`))
+      )
+    ),
+    // Upcoming holidays
+    React.createElement('div', {className:'card'},
+        React.createElement('div', {className:'card-header'},
+          React.createElement('h3', {className:'card-title'}, 'Upcoming Holidays'),
+          React.createElement('button', {className:'btn btn-sm btn-secondary', onClick:()=>onNav('calendar')}, 'Calendar')
+        ),
+        upcoming.map((h,i) => {
+          const hd=new Date(h.date+'T12:00:00');
+          const diff=Math.ceil((hd-today)/(86400000));
+          return React.createElement('div', {className:'holiday-item', key:i},
+            React.createElement('div', {className:`holiday-dot ${h.type}`}),
+            React.createElement('div', {className:'holiday-info'},
+              React.createElement('div', {className:'holiday-name'}, h.name),
+              React.createElement('div', {className:'holiday-date-text'},
+                `${hd.toLocaleDateString('en-US',{month:'short',day:'numeric'})} ${diff===0?' (Today!)':diff===1?' (Tomorrow)':` (in ${diff} days)`}`)
+            ),
+            React.createElement('div', {style:{display:'flex',gap:4,flexWrap:'wrap'}},
+              h.noWork && React.createElement('span', {className:'badge badge-warning', style:{fontSize:10}}, 'No School'),
+              React.createElement('span', {className:`badge ${h.type==='jewish'?'badge-gold':'badge-info'}`, style:{fontSize:10}}, h.type==='jewish'?'Jewish':'American')
+            )
+          );
+        })
+    ),
+    // Teachers quick view
+    teachers.length>0 && React.createElement('div', {className:'card', style:{marginTop:16}},
+      React.createElement('div', {className:'card-header'},
+        React.createElement('h3', {className:'card-title'}, 'Teachers'),
+        React.createElement('button', {className:'btn btn-sm btn-secondary', onClick:()=>onNav('teachers')}, 'Manage')
+      ),
+      React.createElement('table', null,
+        React.createElement('thead', null, React.createElement('tr', null,
+          React.createElement('th',null,'Name'), React.createElement('th',null,'Instrument'), React.createElement('th',null,'Lessons')
+        )),
+        React.createElement('tbody', null, teachers.map(t=>
+          React.createElement('tr', {key:t.id},
+            React.createElement('td', {style:{fontWeight:500}}, t.name),
+            React.createElement('td', null, t.instrument||'-'),
+            React.createElement('td', null, React.createElement('span',{className:'badge badge-purple'},`${lessons.filter(l=>l.teacherId===t.id).length}/week`))
+          )
+        ))
+      )
+    )
+  );
+}
+
+// ---- Calendar Page ----
+function CalendarPage({refresh}) {
+  const today=new Date();
+  const [vY,setVY]=useState(today.getFullYear());
+  const [vM,setVM]=useState(today.getMonth());
+  const [sel,setSel]=useState(null);
+  const [showClosed,setShowClosed]=useState(false);
+  const [reason,setReason]=useState('');
+  const [viewMode,setViewMode]=useState('week');
+  const [refreshKey,setRefreshKey]=useState(0);
+  const schools=getSchools(), lessons=getLessons(), closedDates=getClosedDates();
+  const holidays=getAllHolidays(vY).filter(h=>h.date.startsWith(`${vY}-${String(vM+1).padStart(2,'0')}`));
+
+  const first=new Date(vY,vM,1), last=new Date(vY,vM+1,0);
+  const startDow=first.getDay(), dim=last.getDate();
+  const prevDim=new Date(vY,vM,0).getDate();
+  const days=[];
+  for(let i=startDow-1;i>=0;i--) days.push({day:prevDim-i,other:true});
+  for(let d=1;d<=dim;d++) {
+    const dt=new Date(vY,vM,d);
+    const ds=`${vY}-${String(vM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dh=holidays.filter(h=>h.date===ds);
+    const dl=lessons.filter(l=>doesLessonOccurOnDate(l, ds));
+    const heb=getHebStr(dt);
+    const cl=isSchoolClosed(ds,closedDates);
+    days.push({day:d,other:false,date:ds,holidays:dh,lessons:dl,hebDate:heb,closed:cl,isToday:dt.toDateString()===today.toDateString(),isShabbat:dt.getDay()===6});
+  }
+  for(let d=1;days.length<42;d++) days.push({day:d,other:true});
+
+  // Week view data
+  const weekStart=new Date(today);
+  weekStart.setDate(today.getDate()-today.getDay());
+  const weekDays=[];
+  for(let i=0;i<7;i++){
+    const dt=new Date(weekStart);
+    dt.setDate(weekStart.getDate()+i);
+    const ds=fmtD(dt);
+    const allHolidays=getAllHolidays(dt.getFullYear());
+    const dh=allHolidays.filter(h=>h.date===ds);
+    const dl=lessons.filter(l=>doesLessonOccurOnDate(l, ds));
+    const heb=getHebStr(dt);
+    const cl=isSchoolClosed(ds,closedDates);
+    weekDays.push({day:dt.getDate(),date:ds,dt,holidays:dh,lessons:dl,hebDate:heb,closed:cl,isToday:dt.toDateString()===today.toDateString(),isShabbat:dt.getDay()===6,dow:dt.getDay()});
+  }
+
+  const togglePaid=(lessonId,dateStr)=>{
+    if(isLessonPaid(lessonId,dateStr)){markLessonUnpaid(lessonId,dateStr);}
+    else{markLessonPaid(lessonId,dateStr);}
+    setRefreshKey(k=>k+1);
+  };
+
+  const goMonth=(off)=>{let m=vM+off,y=vY;if(m<0){m=11;y--;}if(m>11){m=0;y++;}setVM(m);setVY(y);};
+  const addClosed=()=>{if(sel) {addItem(KEYS.CLOSED,{date:sel.date,reason:reason||'Closed'}); setShowClosed(false);setReason('');setSel(null);refresh();}};
+
+  return React.createElement('div', null,
+    React.createElement('div', {className:'page-header'},
+      React.createElement('div', null, React.createElement('h2',null,'Calendar'), React.createElement('p',{className:'page-header-sub'},'Jewish & American holidays with your teaching schedule')),
+      React.createElement('div',{style:{display:'flex',gap:6}},
+        React.createElement('button',{className:`btn btn-sm ${viewMode==='week'?'btn-primary':'btn-secondary'}`,onClick:()=>setViewMode('week')},'Week'),
+        React.createElement('button',{className:`btn btn-sm ${viewMode==='month'?'btn-primary':'btn-secondary'}`,onClick:()=>setViewMode('month')},'Month')
+      )
+    ),
+    // Legend
+    React.createElement('div', {style:{display:'flex',gap:14,marginBottom:14,flexWrap:'wrap',fontSize:11,color:'var(--text-secondary)'}},
+      ...[['var(--shabbat-light)','var(--shabbat-color)','Shabbat'],['var(--jewish-gold-light)','var(--jewish-gold)','Jewish Holiday'],['var(--bg-info-light)','var(--bg-info)','American Holiday'],['var(--bg-accent-light)','var(--bg-accent)','Lesson (Unpaid)'],['var(--bg-success-light)','var(--bg-success)','Lesson (Paid)'],['var(--bg-danger-light)','var(--bg-danger)','Closed']].map(([bg,bc,label])=>
+        React.createElement('div',{key:label,style:{display:'flex',alignItems:'center',gap:5}},
+          React.createElement('div',{style:{width:10,height:10,borderRadius:3,background:bg,border:`1px solid ${bc}`}}),label)
+      )
+    ),
+    // WEEK VIEW
+    viewMode==='week' && React.createElement('div',{className:'card'},
+      React.createElement('div',{style:{textAlign:'center',marginBottom:14}},
+        React.createElement('h3',{style:{fontSize:18,fontWeight:700}},`Week of ${weekStart.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`)
+      ),
+      React.createElement('div',{className:'cal-grid cal-grid-week',style:{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4}},
+        weekDays.map((wd,i)=>
+          React.createElement('div',{key:i,style:{textAlign:'center'}},
+            React.createElement('div',{className:'cal-hdr',style:{fontSize:13,padding:'12px 4px'}},DAY_SHORT[wd.dow])
+          )
+        ),
+        weekDays.map((wd,i)=>{
+          return React.createElement('div',{
+            key:'d'+i,
+            className:`cal-day cal-day-lg${wd.isToday?' today':''}${wd.isShabbat?' shabbat':''}${wd.holidays?.some(h=>h.type==='jewish')?' holiday':''}${wd.closed?.closed&&!wd.isShabbat?' closed':''}`,
+            style:{minHeight:180,padding:'10px 12px'}
+          },
+            React.createElement('div',{className:'day-num',style:{fontSize:18,fontWeight:700}},wd.day),
+            React.createElement('div',{className:'heb-date',style:{fontSize:12,marginTop:2}},wd.hebDate),
+            wd.holidays?.map((h,hi)=>React.createElement('div',{key:hi,className:`day-ev ${h.type}`,style:{fontSize:12,padding:'5px 8px',marginBottom:4,borderRadius:5,whiteSpace:'normal'}},h.name)),
+            wd.lessons?.length>0&&!wd.closed?.closed && wd.lessons.map(l=>{
+              const s=schools.find(x=>x.id===l.schoolId);
+              const paid=isLessonPaid(l.id,wd.date);
+              return React.createElement('div',{
+                key:l.id,
+                className:`day-ev ${paid?'lesson-paid':'lesson'}`,
+                style:{fontSize:12,padding:'5px 8px',marginBottom:4,borderRadius:5,whiteSpace:'normal',cursor:'pointer'},
+                onClick:()=>togglePaid(l.id,wd.date),
+                title:paid?'Click to mark unpaid':'Click to mark paid'
+              },`${l.startTime} ${s?.name||''}${paid?' ✓':''}`);
+            }),
+            wd.closed?.closed&&!wd.isShabbat && React.createElement('div',{className:'day-ev',style:{background:'var(--bg-danger-light)',color:'var(--bg-danger)',fontSize:12,padding:'5px 8px',marginBottom:4,borderRadius:5}},'Closed')
+          );
+        })
+      )
+    ),
+    // MONTH VIEW
+    viewMode==='month' && React.createElement('div', {className:'card'},
+      React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}},
+        React.createElement('button', {className:'btn btn-secondary btn-sm', onClick:()=>goMonth(-1)}, '← Previous'),
+        React.createElement('h3', {style:{fontSize:18,fontWeight:700}}, `${MONTHS[vM]} ${vY}`),
+        React.createElement('button', {className:'btn btn-secondary btn-sm', onClick:()=>goMonth(1)}, 'Next →')
+      ),
+      React.createElement('div', {className:'cal-grid'},
+        DAY_SHORT.map(d=>React.createElement('div',{className:'cal-hdr',key:d},d)),
+        days.map((di,i)=>
+          React.createElement('div', {
+            key:i,
+            className:`cal-day${di.other?' other':''}${di.isToday?' today':''}${di.isShabbat?' shabbat':''}${di.holidays?.some(h=>h.type==='jewish')?' holiday':''}${di.closed?.closed&&!di.isShabbat?' closed':''}`,
+            onClick:()=>!di.other&&setSel(di)
+          },
+            React.createElement('div',{className:'day-num'},di.day),
+            di.hebDate && React.createElement('div',{className:'heb-date'},di.hebDate),
+            di.holidays?.map((h,hi)=>React.createElement('div',{key:hi,className:`day-ev ${h.type}`},h.name)),
+            di.lessons?.length>0&&!di.closed?.closed && React.createElement('div',{className:'day-ev lesson'},`${di.lessons.length} lesson${di.lessons.length>1?'s':''}`),
+            di.closed?.closed&&!di.isShabbat && React.createElement('div',{className:'day-ev',style:{background:'var(--bg-danger-light)',color:'var(--bg-danger)'}}, 'Closed')
+          )
+        )
+      )
+    ),
+    // Day detail modal
+    sel && React.createElement(Modal, {title:`${MONTHS[vM]} ${sel.day}, ${vY}`, onClose:()=>setSel(null)},
+      React.createElement('div',{style:{marginBottom:10,color:'var(--jewish-gold)',fontSize:13}},sel.hebDate),
+      sel.isShabbat && React.createElement('span',{className:'badge badge-purple',style:{marginBottom:10,display:'inline-block'}},'Shabbat'),
+      sel.holidays?.length>0 && React.createElement('div',{style:{marginBottom:14}},
+        React.createElement('h4',{style:{fontSize:13,fontWeight:600,color:'var(--text-secondary)',marginBottom:6}},'Holidays'),
+        sel.holidays.map((h,i)=>React.createElement('div',{key:i,style:{display:'flex',gap:6,marginBottom:4}},
+          React.createElement('span',{className:`badge ${h.type==='jewish'?'badge-gold':'badge-info'}`},h.name),
+          h.noWork&&React.createElement('span',{className:'badge badge-warning'},'No School')))
+      ),
+      sel.lessons?.length>0 && React.createElement('div',{style:{marginBottom:14}},
+        React.createElement('h4',{style:{fontSize:13,fontWeight:600,color:'var(--text-secondary)',marginBottom:6}},`Lessons ${sel.closed?.closed?'(Cancelled)':''}`),
+        sel.lessons.map(l=>{const s=schools.find(x=>x.id===l.schoolId); const paid=isLessonPaid(l.id,sel.date);
+          return React.createElement('div',{className:'lesson-card',key:l.id,style:Object.assign({},sel.closed?.closed?{opacity:0.5}:{},{display:'flex',alignItems:'center',justifyContent:'space-between'})},
+            React.createElement('div',null,
+              React.createElement('div',{className:'lesson-time'},`${l.startTime} - ${l.endTime}`),
+              React.createElement('div',{className:'lesson-school'},s?.name||'Unknown')
+            ),
+            !sel.closed?.closed && React.createElement('button',{
+              className:`btn btn-sm ${paid?'btn-success':'btn-secondary'}`,
+              onClick:()=>{togglePaid(l.id,sel.date);setSel({...sel});}
+            },paid?'Paid ✓':'Mark Paid')
+          );})
+      ),
+      sel.closed?.closed && React.createElement('div',{style:{padding:10,background:'var(--bg-danger-light)',borderRadius:8,marginBottom:10}},
+        React.createElement('strong',{style:{color:'var(--bg-danger)'}},'Closed: '), sel.closed.reason),
+      React.createElement('div',{className:'modal-actions',style:{justifyContent:'flex-start'}},
+        !sel.closed?.closed&&!sel.isShabbat && React.createElement('button',{className:'btn btn-danger btn-sm',onClick:()=>setShowClosed(true)},'Mark as Closed'),
+        sel.closed?.closed&&!sel.isShabbat&&!sel.holidays?.some(h=>h.noWork) && React.createElement('button',{className:'btn btn-sm btn-secondary',onClick:()=>{const e=closedDates.find(c=>c.date===sel.date);if(e)deleteItem(KEYS.CLOSED,e.id);setSel(null);refresh();}},'Remove Closing')
+      )
+    ),
+    showClosed && React.createElement(Modal, {title:'Mark Day as Closed', onClose:()=>setShowClosed(false), width:'380px'},
+      React.createElement('div',{className:'form-group'},
+        React.createElement('label',{className:'form-label'},'Reason'),
+        React.createElement('input',{className:'form-input',placeholder:'e.g., Snow day, School event...',value:reason,onChange:e=>setReason(e.target.value)})
+      ),
+      React.createElement('div',{className:'modal-actions'},
+        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowClosed(false)},'Cancel'),
+        React.createElement('button',{className:'btn btn-primary',onClick:addClosed},'Mark Closed'))
+    )
+  );
+}
+
+// ---- Schedule Page ----
+function SchedulePage({refresh}) {
+  const schools=getSchools(),lessons=getLessons(),teachers=getTeachers();
+  const [showModal,setShow]=useState(false);
+  const [editing,setEditing]=useState(null);
+  const todayDow=new Date().getDay();
+  const [form,setForm]=useState({schoolId:'',teacherId:'',dayOfWeek:0,startTime:'09:00',endTime:'10:00',notes:'',rate:'',frequency:'weekly',startDate:fmtD(new Date())});
+
+  const openAdd=(dow=0)=>{setForm({schoolId:schools[0]?.id||'',teacherId:'',dayOfWeek:dow,startTime:'09:00',endTime:'10:00',notes:'',rate:'',frequency:'weekly',startDate:fmtD(new Date())});setEditing(null);setShow(true);};
+  const openEdit=(l)=>{setForm({schoolId:l.schoolId,teacherId:l.teacherId||'',dayOfWeek:l.dayOfWeek,startTime:l.startTime,endTime:l.endTime,notes:l.notes||'',rate:l.rate||'',frequency:l.frequency||'weekly',startDate:l.startDate||fmtD(new Date())});setEditing(l);setShow(true);};
+  const save=()=>{if(!form.schoolId)return;if(editing)updateItem(KEYS.LESSONS,editing.id,form);else addItem(KEYS.LESSONS,form);setShow(false);refresh();};
+  const del=(id)=>{if(confirm('Remove this lesson?')){deleteItem(KEYS.LESSONS,id);refresh();}};
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'page-header'},
+      React.createElement('div',null,React.createElement('h2',null,'Weekly Schedule'),React.createElement('p',{className:'page-header-sub'},'Your recurring weekly teaching schedule')),
+      React.createElement('button',{className:'btn btn-primary',onClick:()=>openAdd(todayDow)},'+ Add Lesson')
+    ),
+    // Week view
+    React.createElement('div',{className:'week-view'},
+      DAY_NAMES.map((name,dow)=>{
+        const dl=lessons.filter(l=>l.dayOfWeek===dow).sort((a,b)=>a.startTime.localeCompare(b.startTime));
+        const isToday=dow===todayDow;
+        return React.createElement('div',{className:`week-col${isToday?' today-col':''}`,key:dow},
+          React.createElement('div',{className:`week-day-name${isToday?' today-n':''}`},name,
+            isToday&&React.createElement('div',{style:{fontSize:9,color:'var(--bg-accent)'}},'Today'),
+            dow===6&&React.createElement('div',{style:{fontSize:9,color:'var(--shabbat-color)'}},'Shabbat')),
+          dl.length===0
+            ? React.createElement('div',{style:{textAlign:'center',padding:'16px 0'}},React.createElement('button',{className:'btn btn-secondary btn-sm',onClick:()=>openAdd(dow),style:{fontSize:11}},'+ Add'))
+            : React.createElement(React.Fragment,null,
+                dl.map(l=>{const s=schools.find(x=>x.id===l.schoolId);const t=teachers.find(x=>x.id===l.teacherId);
+                  return React.createElement('div',{className:'lesson-card',key:l.id,onClick:()=>openEdit(l)},
+                    React.createElement('div',{className:'lesson-time'},`${l.startTime} - ${l.endTime}`),
+                    React.createElement('div',{className:'lesson-school'},s?.name||'Unknown'),
+                    t&&React.createElement('div',{className:'lesson-details'},t.name),
+                    l.rate&&React.createElement('div',{className:'lesson-details'},`$${l.rate}/lesson`),
+                    l.frequency&&l.frequency!=='weekly'&&React.createElement('div',{className:'lesson-details',style:{color:'var(--bg-warning)'}},l.frequency==='biweekly'?'Every 2 Weeks':'Monthly'));
+                }),
+                React.createElement('button',{className:'btn btn-secondary btn-sm',onClick:()=>openAdd(dow),style:{fontSize:10,width:'100%',marginTop:4,justifyContent:'center'}},'+ Add')
+              )
+        );
+      })
+    ),
+    // Table summary
+    React.createElement('div',{className:'card',style:{marginTop:16}},
+      React.createElement('h3',{className:'card-title',style:{marginBottom:10}},'Schedule Summary'),
+      React.createElement('table',null,
+        React.createElement('thead',null,React.createElement('tr',null,
+          React.createElement('th',null,'Day'),React.createElement('th',null,'School'),React.createElement('th',null,'Time'),React.createElement('th',null,'Frequency'),React.createElement('th',null,'Teacher'),React.createElement('th',null,'Rate'),React.createElement('th',null,'Actions'))),
+        React.createElement('tbody',null,
+          lessons.length===0
+            ? React.createElement('tr',null,React.createElement('td',{colSpan:7,style:{textAlign:'center',padding:20,color:'var(--text-tertiary)'}},'No lessons yet. Click "+ Add Lesson" to get started.'))
+            : lessons.sort((a,b)=>a.dayOfWeek-b.dayOfWeek||a.startTime.localeCompare(b.startTime)).map(l=>{
+                const s=schools.find(x=>x.id===l.schoolId),t=teachers.find(x=>x.id===l.teacherId);
+                return React.createElement('tr',{key:l.id},
+                  React.createElement('td',null,React.createElement('span',{className:'badge badge-purple'},DAY_SHORT[l.dayOfWeek])),
+                  React.createElement('td',{style:{fontWeight:500}},s?.name||'Unknown'),
+                  React.createElement('td',null,`${l.startTime} - ${l.endTime}`),
+                  React.createElement('td',null,React.createElement('span',{className:`badge ${(l.frequency||'weekly')==='weekly'?'badge-purple':'badge-warning'}`},(l.frequency||'weekly')==='weekly'?'Weekly':l.frequency==='biweekly'?'Biweekly':'Monthly')),
+                  React.createElement('td',null,t?.name||'-'),
+                  React.createElement('td',null,l.rate?`$${l.rate}`:'-'),
+                  React.createElement('td',null,
+                    React.createElement('div',{style:{display:'flex',gap:4}},
+                      React.createElement('button',{className:'btn btn-secondary btn-sm',onClick:()=>openEdit(l)},'Edit'),
+                      React.createElement('button',{className:'btn btn-danger btn-sm',onClick:()=>del(l.id)},'Delete'))));
+              })
+        )
+      )
+    ),
+    // Modal
+    showModal && React.createElement(Modal,{title:editing?'Edit Lesson':'Add Recurring Lesson',onClose:()=>setShow(false)},
+      React.createElement('div',{className:'form-group'},
+        React.createElement('label',{className:'form-label'},'School *'),
+        React.createElement('select',{className:'form-select',value:form.schoolId,onChange:e=>setForm({...form,schoolId:e.target.value})},
+          React.createElement('option',{value:''},'Select a school...'),
+          schools.map(s=>React.createElement('option',{key:s.id,value:s.id},s.name))),
+        schools.length===0&&React.createElement('p',{style:{fontSize:11,color:'var(--bg-danger)',marginTop:3}},'Please add a school first.')
+      ),
+      React.createElement('div',{className:'form-group'},
+        React.createElement('label',{className:'form-label'},'Teacher (optional)'),
+        React.createElement('select',{className:'form-select',value:form.teacherId,onChange:e=>setForm({...form,teacherId:e.target.value})},
+          React.createElement('option',{value:''},'No specific teacher'),
+          teachers.map(t=>React.createElement('option',{key:t.id,value:t.id},t.name)))
+      ),
+      React.createElement('div',{className:'form-group'},
+        React.createElement('label',{className:'form-label'},'Day of Week *'),
+        React.createElement('select',{className:'form-select',value:form.dayOfWeek,onChange:e=>setForm({...form,dayOfWeek:Number(e.target.value)})},
+          DAY_NAMES.map((n,i)=>React.createElement('option',{key:i,value:i},`${n}${i===6?' (Shabbat)':''}`)))
+      ),
+      React.createElement('div',{className:'form-group'},
+        React.createElement('label',{className:'form-label'},'Frequency'),
+        React.createElement('select',{className:'form-select',value:form.frequency,onChange:e=>setForm({...form,frequency:e.target.value})},
+          React.createElement('option',{value:'weekly'},'Every Week'),
+          React.createElement('option',{value:'biweekly'},'Every 2 Weeks'),
+          React.createElement('option',{value:'monthly'},'Monthly (same week of month)'))
+      ),
+      form.frequency!=='weekly' && React.createElement('div',{className:'form-group'},
+        React.createElement('label',{className:'form-label'},'Start Date (used to calculate recurrence)'),
+        React.createElement('input',{type:'date',className:'form-input',value:form.startDate,onChange:e=>setForm({...form,startDate:e.target.value})})
+      ),
+      React.createElement('div',{className:'form-row'},
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Start Time'),React.createElement('input',{type:'time',className:'form-input',value:form.startTime,onChange:e=>setForm({...form,startTime:e.target.value})})),
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'End Time'),React.createElement('input',{type:'time',className:'form-input',value:form.endTime,onChange:e=>setForm({...form,endTime:e.target.value})}))
+      ),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Rate per Lesson ($)'),React.createElement('input',{type:'number',className:'form-input',placeholder:'e.g., 75',value:form.rate,onChange:e=>setForm({...form,rate:e.target.value})})),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Notes'),React.createElement('textarea',{className:'form-textarea',placeholder:'Room number, instructions...',value:form.notes,onChange:e=>setForm({...form,notes:e.target.value})})),
+      React.createElement('div',{className:'modal-actions'},
+        editing&&React.createElement('button',{className:'btn btn-danger',onClick:()=>{del(editing.id);setShow(false);},style:{marginRight:'auto'}},'Delete'),
+        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShow(false)},'Cancel'),
+        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:!form.schoolId},editing?'Update':'Add Lesson'))
+    )
+  );
+}
+
+// ---- Schools Page ----
+function SchoolsPage({refresh}) {
+  const schools=getSchools(),lessons=getLessons(),payments=getPayments(),notes=getNotes();
+  const [showModal,setShow]=useState(false);
+  const [editing,setEditing]=useState(null);
+  const [detail,setDetail]=useState(null);
+  const [newNote,setNewNote]=useState('');
+  const [search,setSearch]=useState('');
+  const [form,setForm]=useState({name:'',address:'',contactName:'',contactPhone:'',contactEmail:'',notes:'',color:'#6c5ce7'});
+
+  const openAdd=()=>{setForm({name:'',address:'',contactName:'',contactPhone:'',contactEmail:'',notes:'',color:'#6c5ce7'});setEditing(null);setShow(true);};
+  const openEdit=(s)=>{setForm({name:s.name||'',address:s.address||'',contactName:s.contactName||'',contactPhone:s.contactPhone||'',contactEmail:s.contactEmail||'',notes:s.notes||'',color:s.color||'#6c5ce7'});setEditing(s);setShow(true);};
+  const save=()=>{if(!form.name.trim())return;if(editing)updateItem(KEYS.SCHOOLS,editing.id,form);else addItem(KEYS.SCHOOLS,form);setShow(false);refresh();};
+  const del=(id)=>{if(confirm('Delete this school and its lessons?')){deleteItem(KEYS.SCHOOLS,id);setData(KEYS.LESSONS,getLessons().filter(l=>l.schoolId!==id));refresh();}};
+  const addN=(sid)=>{if(!newNote.trim())return;addItem(KEYS.NOTES,{schoolId:sid,text:newNote});setNewNote('');refresh();};
+
+  const filtered=schools.filter(s=>s.name.toLowerCase().includes(search.toLowerCase()));
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'page-header'},
+      React.createElement('div',null,React.createElement('h2',null,'Schools'),React.createElement('p',{className:'page-header-sub'},'Manage the schools you teach at')),
+      React.createElement('div',{style:{display:'flex',gap:10}},
+        React.createElement('div',{className:'search-bar'},React.createElement('span',null,'🔍'),React.createElement('input',{placeholder:'Search schools...',value:search,onChange:e=>setSearch(e.target.value)})),
+        React.createElement('button',{className:'btn btn-primary',onClick:openAdd},'+ Add School'))
+    ),
+    filtered.length===0
+      ? React.createElement('div',{className:'card'},React.createElement('div',{className:'empty-state'},
+          React.createElement('h3',null,'No Schools Yet'),React.createElement('p',null,'Add your first school to get started.'),
+          React.createElement('button',{className:'btn btn-primary',onClick:openAdd},'+ Add School')))
+      : React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:14}},
+          filtered.map(school=>{
+            const sl=lessons.filter(l=>l.schoolId===school.id);
+            const sp=payments.filter(p=>p.schoolId===school.id);
+            const paid=sp.filter(p=>p.status==='paid').reduce((s,p)=>s+Number(p.amount),0);
+            const owed=sp.filter(p=>p.status!=='paid').reduce((s,p)=>s+Number(p.amount),0);
+            return React.createElement('div',{className:'card',key:school.id,style:{cursor:'pointer'},onClick:()=>setDetail(school)},
+              React.createElement('div',{style:{display:'flex',alignItems:'center',gap:10,marginBottom:10}},
+                React.createElement('div',{style:{width:36,height:36,borderRadius:9,background:school.color||'var(--bg-accent)',display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:700,fontSize:15}},school.name[0].toUpperCase()),
+                React.createElement('div',{style:{flex:1}},
+                  React.createElement('div',{style:{fontWeight:600,fontSize:15}},school.name),
+                  school.address&&React.createElement('div',{style:{fontSize:11,color:'var(--text-secondary)'}},school.address)),
+                React.createElement('button',{className:'btn-icon',onClick:e=>{e.stopPropagation();openEdit(school);}},'✏️')
+              ),
+              React.createElement('div',{style:{display:'flex',gap:6,flexWrap:'wrap',marginBottom:10}},
+                React.createElement('span',{className:'badge badge-purple'},`${sl.length} lessons/week`),
+                sl.map(l=>React.createElement('span',{className:'badge badge-info',key:l.id,style:{fontSize:9}},`${DAY_SHORT[l.dayOfWeek]} ${l.startTime}`))),
+              React.createElement('div',{style:{display:'flex',justifyContent:'space-between',fontSize:12}},
+                React.createElement('span',{style:{color:'var(--bg-success)'}},`Paid: $${paid}`),
+                React.createElement('span',{style:{color:owed>0?'var(--bg-danger)':'var(--text-tertiary)'}},`Owed: $${owed}`)),
+              school.contactName&&React.createElement('div',{style:{marginTop:6,fontSize:11,color:'var(--text-secondary)'}},`Contact: ${school.contactName}${school.contactPhone?` - ${school.contactPhone}`:''}`)
+            );
+          })
+        ),
+    // Add/Edit modal
+    showModal && React.createElement(Modal,{title:editing?'Edit School':'Add School',onClose:()=>setShow(false)},
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'School Name *'),React.createElement('input',{className:'form-input',placeholder:'e.g., Beth Israel Day School',value:form.name,onChange:e=>setForm({...form,name:e.target.value})})),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Address'),React.createElement('input',{className:'form-input',placeholder:'123 Main St',value:form.address,onChange:e=>setForm({...form,address:e.target.value})})),
+      React.createElement('div',{className:'form-row'},
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Contact Name'),React.createElement('input',{className:'form-input',value:form.contactName,onChange:e=>setForm({...form,contactName:e.target.value})})),
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Contact Phone'),React.createElement('input',{className:'form-input',value:form.contactPhone,onChange:e=>setForm({...form,contactPhone:e.target.value})}))
+      ),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Email'),React.createElement('input',{className:'form-input',type:'email',value:form.contactEmail,onChange:e=>setForm({...form,contactEmail:e.target.value})})),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Color'),React.createElement('input',{type:'color',value:form.color,onChange:e=>setForm({...form,color:e.target.value}),style:{width:44,height:32,border:'none',borderRadius:6,cursor:'pointer'}})),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Notes'),React.createElement('textarea',{className:'form-textarea',value:form.notes,onChange:e=>setForm({...form,notes:e.target.value})})),
+      React.createElement('div',{className:'modal-actions'},
+        editing&&React.createElement('button',{className:'btn btn-danger',onClick:()=>{del(editing.id);setShow(false);},style:{marginRight:'auto'}},'Delete'),
+        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShow(false)},'Cancel'),
+        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:!form.name.trim()},editing?'Update':'Add School'))
+    ),
+    // Detail modal
+    detail && React.createElement(Modal,{title:detail.name,onClose:()=>setDetail(null),width:'560px'},
+      React.createElement('div',{className:'two-col',style:{marginBottom:14}},
+        React.createElement('div',null,React.createElement('div',{style:{fontSize:11,color:'var(--text-tertiary)'}},'Address'),React.createElement('div',{style:{fontSize:13}},detail.address||'-')),
+        React.createElement('div',null,React.createElement('div',{style:{fontSize:11,color:'var(--text-tertiary)'}},'Contact'),React.createElement('div',{style:{fontSize:13}},detail.contactName||'-'),React.createElement('div',{style:{fontSize:11,color:'var(--text-secondary)'}},detail.contactPhone||''),React.createElement('div',{style:{fontSize:11,color:'var(--text-secondary)'}},detail.contactEmail||''))
+      ),
+      React.createElement('h4',{style:{fontSize:13,fontWeight:600,color:'var(--text-secondary)',marginBottom:6}},'Weekly Schedule'),
+      lessons.filter(l=>l.schoolId===detail.id).map(l=>React.createElement('div',{className:'lesson-card',key:l.id},React.createElement('div',{className:'lesson-time'},`${DAY_SHORT[l.dayOfWeek]}: ${l.startTime} - ${l.endTime}`),l.rate&&React.createElement('div',{className:'lesson-details'},`$${l.rate}/lesson`))),
+      lessons.filter(l=>l.schoolId===detail.id).length===0&&React.createElement('p',{style:{fontSize:12,color:'var(--text-tertiary)',marginBottom:10}},'No lessons at this school.'),
+      React.createElement('h4',{style:{fontSize:13,fontWeight:600,color:'var(--text-secondary)',margin:'14px 0 6px'}},'Notes'),
+      notes.filter(n=>n.schoolId===detail.id).map(n=>React.createElement('div',{key:n.id,style:{padding:8,background:'var(--bg-tertiary)',borderRadius:6,marginBottom:4,display:'flex',justifyContent:'space-between',fontSize:13}},
+        React.createElement('span',null,n.text),
+        React.createElement('button',{className:'btn-icon',style:{border:'none',fontSize:12},onClick:()=>{deleteItem(KEYS.NOTES,n.id);refresh();}},'×'))),
+      React.createElement('div',{style:{display:'flex',gap:6,marginTop:6}},
+        React.createElement('input',{className:'form-input',placeholder:'Add a note...',value:newNote,onChange:e=>setNewNote(e.target.value),onKeyDown:e=>{if(e.key==='Enter')addN(detail.id);}}),
+        React.createElement('button',{className:'btn btn-primary btn-sm',onClick:()=>addN(detail.id)},'Add'))
+    )
+  );
+}
+
+// ---- Teachers Page ----
+function TeachersPage({refresh}) {
+  const teachers=getTeachers(),lessons=getLessons(),schools=getSchools(),payments=getPayments();
+  const [showModal,setShow]=useState(false);
+  const [editing,setEditing]=useState(null);
+  const [form,setForm]=useState({name:'',email:'',phone:'',instrument:'',hourlyRate:'',notes:''});
+
+  const openAdd=()=>{setForm({name:'',email:'',phone:'',instrument:'',hourlyRate:'',notes:''});setEditing(null);setShow(true);};
+  const openEdit=(t)=>{setForm({name:t.name||'',email:t.email||'',phone:t.phone||'',instrument:t.instrument||'',hourlyRate:t.hourlyRate||'',notes:t.notes||''});setEditing(t);setShow(true);};
+  const save=()=>{if(!form.name.trim())return;if(editing)updateItem(KEYS.TEACHERS,editing.id,form);else addItem(KEYS.TEACHERS,form);setShow(false);refresh();};
+  const del=(id)=>{if(confirm('Delete this teacher?')){deleteItem(KEYS.TEACHERS,id);refresh();}};
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'page-header'},
+      React.createElement('div',null,React.createElement('h2',null,'Teachers'),React.createElement('p',{className:'page-header-sub'},'Manage your teaching staff')),
+      React.createElement('button',{className:'btn btn-primary',onClick:openAdd},'+ Add Teacher')
+    ),
+    teachers.length===0
+      ? React.createElement('div',{className:'card'},React.createElement('div',{className:'empty-state'},
+          React.createElement('h3',null,'No Teachers Yet'),React.createElement('p',null,'Add teachers to assign them to lessons and track payments.'),
+          React.createElement('button',{className:'btn btn-primary',onClick:openAdd},'+ Add Teacher')))
+      : React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:14}},
+          teachers.map(teacher=>{
+            const tl=lessons.filter(l=>l.teacherId===teacher.id);
+            const tp=payments.filter(p=>p.teacherId===teacher.id);
+            const paid=tp.filter(p=>p.status==='paid').reduce((s,p)=>s+Number(p.amount),0);
+            const pending=tp.filter(p=>p.status!=='paid').reduce((s,p)=>s+Number(p.amount),0);
+            return React.createElement('div',{className:'card',key:teacher.id},
+              React.createElement('div',{style:{display:'flex',alignItems:'center',gap:10,marginBottom:14}},
+                React.createElement('div',{style:{width:42,height:42,borderRadius:50,background:'var(--bg-accent-light)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--bg-accent)',fontWeight:700,fontSize:18}},teacher.name[0].toUpperCase()),
+                React.createElement('div',{style:{flex:1}},
+                  React.createElement('div',{style:{fontWeight:600,fontSize:15}},teacher.name),
+                  teacher.instrument&&React.createElement('div',{style:{fontSize:12,color:'var(--text-secondary)'}},teacher.instrument)),
+                React.createElement('button',{className:'btn-icon',onClick:()=>openEdit(teacher)},'✏️'),
+                React.createElement('button',{className:'btn-icon',onClick:()=>del(teacher.id)},'🗑️')
+              ),
+              React.createElement('div',{style:{display:'flex',gap:6,flexWrap:'wrap',marginBottom:10}},
+                React.createElement('span',{className:'badge badge-purple'},`${tl.length} lessons/week`),
+                teacher.hourlyRate&&React.createElement('span',{className:'badge badge-success'},`$${teacher.hourlyRate}/hr`)),
+              tl.length>0&&React.createElement('div',{style:{marginBottom:10}},
+                tl.map(l=>{const s=schools.find(x=>x.id===l.schoolId);
+                  return React.createElement('div',{key:l.id,style:{fontSize:12,color:'var(--text-secondary)',padding:'2px 0'}},`${DAY_SHORT[l.dayOfWeek]} ${l.startTime}-${l.endTime} @ ${s?.name||'Unknown'}`);})),
+              React.createElement('div',{style:{display:'flex',justifyContent:'space-between',fontSize:12,paddingTop:8,borderTop:'1px solid var(--border-light)'}},
+                React.createElement('span',{style:{color:'var(--bg-success)'}},`Paid: $${paid}`),
+                React.createElement('span',{style:{color:pending>0?'var(--bg-danger)':'var(--text-tertiary)'}},`Pending: $${pending}`)),
+              teacher.phone&&React.createElement('div',{style:{fontSize:11,color:'var(--text-tertiary)',marginTop:6}},`${teacher.phone}${teacher.email?` · ${teacher.email}`:''}`)
+            );
+          })
+        ),
+    showModal && React.createElement(Modal,{title:editing?'Edit Teacher':'Add Teacher',onClose:()=>setShow(false)},
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Name *'),React.createElement('input',{className:'form-input',placeholder:'Teacher name',value:form.name,onChange:e=>setForm({...form,name:e.target.value})})),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Instrument / Specialty'),React.createElement('input',{className:'form-input',placeholder:'e.g., Piano, Violin, Voice',value:form.instrument,onChange:e=>setForm({...form,instrument:e.target.value})})),
+      React.createElement('div',{className:'form-row'},
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Phone'),React.createElement('input',{className:'form-input',value:form.phone,onChange:e=>setForm({...form,phone:e.target.value})})),
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Email'),React.createElement('input',{className:'form-input',type:'email',value:form.email,onChange:e=>setForm({...form,email:e.target.value})}))
+      ),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Hourly Rate ($)'),React.createElement('input',{type:'number',className:'form-input',placeholder:'e.g., 50',value:form.hourlyRate,onChange:e=>setForm({...form,hourlyRate:e.target.value})})),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Notes'),React.createElement('textarea',{className:'form-textarea',value:form.notes,onChange:e=>setForm({...form,notes:e.target.value})})),
+      React.createElement('div',{className:'modal-actions'},
+        editing&&React.createElement('button',{className:'btn btn-danger',onClick:()=>{del(editing.id);setShow(false);},style:{marginRight:'auto'}},'Delete'),
+        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShow(false)},'Cancel'),
+        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:!form.name.trim()},editing?'Update':'Add Teacher'))
+    )
+  );
+}
+
+// ---- Payments Page ----
+function PaymentsPage({refresh}) {
+  const payments=getPayments(),schools=getSchools(),teachers=getTeachers();
+  const [showModal,setShow]=useState(false);
+  const [editing,setEditing]=useState(null);
+  const [fStatus,setFS]=useState('all');
+  const [fType,setFT]=useState('all');
+  const now=new Date();
+  const [form,setForm]=useState({type:'incoming',schoolId:'',teacherId:'',amount:'',status:'pending',dueDate:'',paidDate:'',description:'',month:now.getMonth(),year:now.getFullYear()});
+
+  const openAdd=()=>{setForm({type:'incoming',schoolId:schools[0]?.id||'',teacherId:'',amount:'',status:'pending',dueDate:'',paidDate:'',description:'',month:now.getMonth(),year:now.getFullYear()});setEditing(null);setShow(true);};
+  const openEdit=(p)=>{setForm({type:p.type||'incoming',schoolId:p.schoolId||'',teacherId:p.teacherId||'',amount:p.amount||'',status:p.status||'pending',dueDate:p.dueDate||'',paidDate:p.paidDate||'',description:p.description||'',month:p.month??now.getMonth(),year:p.year??now.getFullYear()});setEditing(p);setShow(true);};
+  const save=()=>{if(!form.amount)return;if(editing)updateItem(KEYS.PAYMENTS,editing.id,form);else addItem(KEYS.PAYMENTS,form);setShow(false);refresh();};
+  const del=(id)=>{if(confirm('Delete this payment?')){deleteItem(KEYS.PAYMENTS,id);refresh();}};
+  const markPaid=(id)=>{updateItem(KEYS.PAYMENTS,id,{status:'paid',paidDate:fmtD(new Date())});refresh();};
+
+  let filtered=payments;
+  if(fStatus!=='all') filtered=filtered.filter(p=>p.status===fStatus);
+  if(fType!=='all') filtered=filtered.filter(p=>(p.type||'incoming')===fType);
+  filtered.sort((a,b)=>(b.year-a.year)||(b.month-a.month));
+
+  const inPaid=payments.filter(p=>(p.type||'incoming')==='incoming'&&p.status==='paid').reduce((s,p)=>s+Number(p.amount||0),0);
+  const inPend=payments.filter(p=>(p.type||'incoming')==='incoming'&&p.status!=='paid').reduce((s,p)=>s+Number(p.amount||0),0);
+  const outPaid=payments.filter(p=>p.type==='outgoing'&&p.status==='paid').reduce((s,p)=>s+Number(p.amount||0),0);
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'page-header'},
+      React.createElement('div',null,React.createElement('h2',null,'Payments'),React.createElement('p',{className:'page-header-sub'},'Track income from schools and payments to teachers')),
+      React.createElement('button',{className:'btn btn-primary',onClick:openAdd},'+ Add Payment')
+    ),
+    React.createElement('div',{className:'stats-grid'},
+      React.createElement('div',{className:'stat-card'},React.createElement('div',{className:'stat-icon green'},'📈'),React.createElement('div',{className:'stat-info'},React.createElement('h3',null,`$${inPaid.toLocaleString()}`),React.createElement('p',null,'Income Received'))),
+      React.createElement('div',{className:'stat-card'},React.createElement('div',{className:'stat-icon orange'},'⏳'),React.createElement('div',{className:'stat-info'},React.createElement('h3',null,`$${inPend.toLocaleString()}`),React.createElement('p',null,'Income Pending'))),
+      React.createElement('div',{className:'stat-card'},React.createElement('div',{className:'stat-icon blue'},'👩‍🏫'),React.createElement('div',{className:'stat-info'},React.createElement('h3',null,`$${outPaid.toLocaleString()}`),React.createElement('p',null,'Paid to Teachers'))),
+      React.createElement('div',{className:'stat-card'},React.createElement('div',{className:'stat-icon purple'},'💵'),React.createElement('div',{className:'stat-info'},React.createElement('h3',null,`$${(inPaid-outPaid).toLocaleString()}`),React.createElement('p',null,'Net Profit')))
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('div',{style:{display:'flex',gap:10,marginBottom:14,flexWrap:'wrap',alignItems:'center'}},
+        [['all','All'],['incoming','From Schools'],['outgoing','To Teachers']].map(([v,l])=>
+          React.createElement('button',{key:v,className:`btn btn-sm ${fType===v?'btn-primary':'btn-secondary'}`,onClick:()=>setFT(v)},l)),
+        React.createElement('div',{style:{marginLeft:'auto',display:'flex',gap:6}},
+          ['all','pending','paid','overdue'].map(s=>React.createElement('button',{key:s,className:`btn btn-sm ${fStatus===s?'btn-primary':'btn-secondary'}`,onClick:()=>setFS(s)},s[0].toUpperCase()+s.slice(1))))
+      ),
+      React.createElement('table',null,
+        React.createElement('thead',null,React.createElement('tr',null,
+          React.createElement('th',null,'Type'),React.createElement('th',null,'School/Teacher'),React.createElement('th',null,'Period'),React.createElement('th',null,'Amount'),React.createElement('th',null,'Status'),React.createElement('th',null,'Actions'))),
+        React.createElement('tbody',null,
+          filtered.length===0
+            ? React.createElement('tr',null,React.createElement('td',{colSpan:6,style:{textAlign:'center',padding:24,color:'var(--text-tertiary)'}},'No payments found.'))
+            : filtered.map(p=>{
+                const s=schools.find(x=>x.id===p.schoolId),t=teachers.find(x=>x.id===p.teacherId);
+                const isIn=(p.type||'incoming')==='incoming';
+                return React.createElement('tr',{key:p.id},
+                  React.createElement('td',null,React.createElement('span',{className:`badge ${isIn?'badge-success':'badge-info'}`},isIn?'Income':'Expense')),
+                  React.createElement('td',{style:{fontWeight:500}},isIn?(s?.name||'-'):(t?.name||'-')),
+                  React.createElement('td',null,`${MONTHS[p.month]} ${p.year}`),
+                  React.createElement('td',{style:{fontWeight:600,color:isIn?'var(--bg-success)':'var(--bg-danger)'}},`${isIn?'+':'-'}$${Number(p.amount).toLocaleString()}`),
+                  React.createElement('td',null,React.createElement('span',{className:`badge ${p.status==='paid'?'badge-success':p.status==='overdue'?'badge-danger':'badge-warning'}`},p.status)),
+                  React.createElement('td',null,React.createElement('div',{style:{display:'flex',gap:4}},
+                    p.status!=='paid'&&React.createElement('button',{className:'btn btn-sm',style:{background:'var(--bg-success-light)',color:'var(--bg-success)'},onClick:()=>markPaid(p.id)},'Paid'),
+                    React.createElement('button',{className:'btn btn-secondary btn-sm',onClick:()=>openEdit(p)},'Edit'),
+                    React.createElement('button',{className:'btn btn-danger btn-sm',onClick:()=>del(p.id)},'Del'))));
+              })
+        )
+      )
+    ),
+    showModal && React.createElement(Modal,{title:editing?'Edit Payment':'Add Payment',onClose:()=>setShow(false)},
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Type'),React.createElement('select',{className:'form-select',value:form.type,onChange:e=>setForm({...form,type:e.target.value})},React.createElement('option',{value:'incoming'},'Income (from School)'),React.createElement('option',{value:'outgoing'},'Expense (to Teacher)'))),
+      form.type==='incoming'
+        ? React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'School'),React.createElement('select',{className:'form-select',value:form.schoolId,onChange:e=>setForm({...form,schoolId:e.target.value})},React.createElement('option',{value:''},'Select...'),schools.map(s=>React.createElement('option',{key:s.id,value:s.id},s.name))))
+        : React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Teacher'),React.createElement('select',{className:'form-select',value:form.teacherId,onChange:e=>setForm({...form,teacherId:e.target.value})},React.createElement('option',{value:''},'Select...'),teachers.map(t=>React.createElement('option',{key:t.id,value:t.id},t.name)))),
+      React.createElement('div',{className:'form-row'},
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Month'),React.createElement('select',{className:'form-select',value:form.month,onChange:e=>setForm({...form,month:Number(e.target.value)})},MONTHS.map((m,i)=>React.createElement('option',{key:i,value:i},m)))),
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Year'),React.createElement('input',{type:'number',className:'form-input',value:form.year,onChange:e=>setForm({...form,year:Number(e.target.value)})}))
+      ),
+      React.createElement('div',{className:'form-row'},
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Amount ($) *'),React.createElement('input',{type:'number',className:'form-input',placeholder:'0.00',value:form.amount,onChange:e=>setForm({...form,amount:e.target.value})})),
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Status'),React.createElement('select',{className:'form-select',value:form.status,onChange:e=>setForm({...form,status:e.target.value})},React.createElement('option',{value:'pending'},'Pending'),React.createElement('option',{value:'paid'},'Paid'),React.createElement('option',{value:'overdue'},'Overdue')))
+      ),
+      React.createElement('div',{className:'form-row'},
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Due Date'),React.createElement('input',{type:'date',className:'form-input',value:form.dueDate,onChange:e=>setForm({...form,dueDate:e.target.value})})),
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Paid Date'),React.createElement('input',{type:'date',className:'form-input',value:form.paidDate,onChange:e=>setForm({...form,paidDate:e.target.value})}))
+      ),
+      React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Description'),React.createElement('textarea',{className:'form-textarea',value:form.description,onChange:e=>setForm({...form,description:e.target.value})})),
+      React.createElement('div',{className:'modal-actions'},
+        editing&&React.createElement('button',{className:'btn btn-danger',onClick:()=>{del(editing.id);setShow(false);},style:{marginRight:'auto'}},'Delete'),
+        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShow(false)},'Cancel'),
+        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:!form.amount},editing?'Update':'Add Payment'))
+    )
+  );
+}
+
+// ---- Settings Page ----
+function SettingsPage({settings,updateSettings}) {
+  const toggleTheme=()=>updateSettings({theme:settings.theme==='dark'?'light':'dark'});
+  const toggleNotif=async()=>{if(!settings.notificationsEnabled){const ok=await requestNotifPerm();if(!ok){alert('Please allow notifications in your browser.');return;}} updateSettings({notificationsEnabled:!settings.notificationsEnabled});};
+  const testNotif=async()=>{const ok=await requestNotifPerm();if(!ok){alert('Allow notifications first.');return;} const ls=getLessons(),sc=getSchools(),dow=new Date().getDay();const tl=ls.filter(l=>l.dayOfWeek===dow);if(tl.length===0)sendNotif('Test: Good Morning!','No lessons today.');else{const names=tl.map(l=>{const s=sc.find(x=>x.id===l.schoolId);return s?`${s.name} at ${l.startTime}`:`Lesson at ${l.startTime}`;});sendNotif(`Test: ${tl.length} lesson(s) today`,names.join(', '),'test');}};
+  const exportData=()=>{const d={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('mm_'))d[k]=JSON.parse(localStorage.getItem(k));}const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`melodymanager-backup-${fmtD(new Date())}.json`;a.click();URL.revokeObjectURL(u);};
+  const importData=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>{try{const d=JSON.parse(ev.target.result);Object.entries(d).forEach(([k,v])=>localStorage.setItem(k,JSON.stringify(v)));alert('Imported! Page will reload.');location.reload();}catch{alert('Invalid file.');}};r.readAsText(f);};
+  const clearData=()=>{if(confirm('Delete ALL data? Cannot be undone!')){if(confirm('Are you sure?')){for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k.startsWith('mm_'))localStorage.removeItem(k);}location.reload();}}};
+
+  return React.createElement('div',null,
+    React.createElement('div',{className:'page-header'},React.createElement('div',null,React.createElement('h2',null,'Settings'),React.createElement('p',{className:'page-header-sub'},'Customize your MelodyManager'))),
+    React.createElement('div',{style:{maxWidth:560,display:'flex',flexDirection:'column',gap:16}},
+      // Appearance
+      React.createElement('div',{className:'card'},
+        React.createElement('h3',{className:'card-title',style:{marginBottom:14}},'Appearance'),
+        React.createElement('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0'}},
+          React.createElement('div',null,React.createElement('div',{style:{fontWeight:500,fontSize:13}},'Theme'),React.createElement('div',{style:{fontSize:12,color:'var(--text-secondary)'}},`Currently using ${settings.theme} mode`)),
+          React.createElement('button',{className:'theme-toggle',onClick:toggleTheme},
+            React.createElement('span',{style:{fontSize:14}},settings.theme==='dark'?'🌙':'☀️'),
+            React.createElement('div',{className:`toggle-track${settings.theme==='dark'?' on':''}`},React.createElement('div',{className:'toggle-thumb'})),
+            React.createElement('span',{style:{fontSize:12,color:'var(--text-secondary)'}},settings.theme==='dark'?'Dark':'Light'))
+        )
+      ),
+      // Notifications
+      React.createElement('div',{className:'card'},
+        React.createElement('h3',{className:'card-title',style:{marginBottom:14}},'Notifications'),
+        React.createElement('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:'1px solid var(--border-light)'}},
+          React.createElement('div',null,React.createElement('div',{style:{fontWeight:500,fontSize:13}},'Daily Morning Alert'),React.createElement('div',{style:{fontSize:12,color:'var(--text-secondary)'}},'Get notified each morning')),
+          React.createElement('button',{className:'theme-toggle',onClick:toggleNotif},
+            React.createElement('div',{className:`toggle-track${settings.notificationsEnabled?' on':''}`},React.createElement('div',{className:'toggle-thumb'})),
+            React.createElement('span',{style:{fontSize:12,color:'var(--text-secondary)'}},settings.notificationsEnabled?'On':'Off'))
+        ),
+        React.createElement('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:'1px solid var(--border-light)'}},
+          React.createElement('div',null,React.createElement('div',{style:{fontWeight:500,fontSize:13}},'Notification Time'),React.createElement('div',{style:{fontSize:12,color:'var(--text-secondary)'}},'When to send daily alert')),
+          React.createElement('input',{type:'time',className:'form-input',style:{width:110},value:settings.notificationTime||'07:00',onChange:e=>updateSettings({notificationTime:e.target.value})})
+        ),
+        React.createElement('div',{style:{padding:'10px 0'}},React.createElement('button',{className:'btn btn-secondary btn-sm',onClick:testNotif},'Send Test Notification'))
+      ),
+      // Business
+      React.createElement('div',{className:'card'},
+        React.createElement('h3',{className:'card-title',style:{marginBottom:14}},'Business'),
+        React.createElement('div',{className:'form-group'},React.createElement('label',{className:'form-label'},'Business Name'),React.createElement('input',{className:'form-input',value:settings.businessName||'',onChange:e=>updateSettings({businessName:e.target.value}),placeholder:'Your business name'}))
+      ),
+      // Data
+      React.createElement('div',{className:'card'},
+        React.createElement('h3',{className:'card-title',style:{marginBottom:14}},'Data Management'),
+        React.createElement('div',{style:{display:'flex',gap:10,flexWrap:'wrap'}},
+          React.createElement('button',{className:'btn btn-secondary',onClick:exportData},'📥 Export Backup'),
+          React.createElement('label',{className:'btn btn-secondary',style:{cursor:'pointer'}},'📤 Import Backup',React.createElement('input',{type:'file',accept:'.json',onChange:importData,style:{display:'none'}})),
+          React.createElement('button',{className:'btn btn-danger',onClick:clearData},'🗑️ Clear All Data')
+        ),
+        React.createElement('div',{style:{marginTop:10,fontSize:11,color:'var(--text-tertiary)'}},'All data is stored locally in your browser. Export regularly to keep a backup.')
+      ),
+      // About
+      React.createElement('div',{className:'card'},
+        React.createElement('h3',{className:'card-title',style:{marginBottom:10}},'About MelodyManager'),
+        React.createElement('p',{style:{fontSize:13,color:'var(--text-secondary)',lineHeight:1.6}},'A business management tool designed for Jewish music teachers. Features Jewish calendar with all holidays, weekly recurring lesson scheduling, teacher and payment tracking, and daily notifications.'),
+        React.createElement('div',{style:{marginTop:10,fontSize:11,color:'var(--text-tertiary)'}},'Version 1.0 · Built with ♪ and ❤️')
+      )
+    )
+  );
+}
+
+// ============================================================
+// MAIN APP
+// ============================================================
+function App() {
+  const [page,setPage]=useState('dashboard');
+  const [settings,setSettings]=useState(()=>getSettings());
+  const [sidebarOpen,setSidebar]=useState(false);
+  const [rk,setRK]=useState(0);
+  const refresh=useCallback(()=>setRK(k=>k+1),[]);
+
+  useEffect(()=>{document.documentElement.setAttribute('data-theme',settings.theme);},[settings.theme]);
+  useEffect(()=>{if(settings.notificationsEnabled)requestNotifPerm();},[]);
+  useEffect(()=>{
+    const iv=setInterval(()=>checkMorningNotif(getLessons(),getSchools(),settings),60000);
+    return ()=>clearInterval(iv);
+  },[settings]);
+
+  const updateS=(u)=>{const m={...settings,...u};setSettings(m);setData(KEYS.SETTINGS,m);};
+
+  const navItems=[
+    {section:'Overview',items:[{id:'dashboard',label:'Dashboard',icon:'🏠'},{id:'calendar',label:'Calendar',icon:'📅'}]},
+    {section:'Management',items:[{id:'schedule',label:'Weekly Schedule',icon:'🕐'},{id:'schools',label:'Schools',icon:'🏫'},{id:'teachers',label:'Teachers',icon:'👩‍🏫'},{id:'payments',label:'Payments',icon:'💰'}]},
+    {section:'System',items:[{id:'settings',label:'Settings',icon:'⚙️'}]}
+  ];
+
+  const pendingPayments=getPayments().filter(p=>p.status==='pending'||p.status==='overdue').length;
+
+  const renderPage=()=>{
+    switch(page){
+      case 'dashboard': return React.createElement(Dashboard,{key:rk,onNav:setPage});
+      case 'calendar': return React.createElement(CalendarPage,{key:rk,refresh});
+      case 'schedule': return React.createElement(SchedulePage,{key:rk,refresh});
+      case 'schools': return React.createElement(SchoolsPage,{key:rk,refresh});
+      case 'teachers': return React.createElement(TeachersPage,{key:rk,refresh});
+      case 'payments': return React.createElement(PaymentsPage,{key:rk,refresh});
+      case 'settings': return React.createElement(SettingsPage,{settings,updateSettings:updateS});
+      default: return React.createElement(Dashboard,{key:rk,onNav:setPage});
+    }
+  };
+
+  return React.createElement('div',{className:'app-layout'},
+    // Mobile menu button
+    React.createElement('button',{className:'mobile-menu-btn',onClick:()=>setSidebar(!sidebarOpen)},'☰'),
+    // Sidebar
+    React.createElement('aside',{className:`sidebar${sidebarOpen?' open':''}`},
+      React.createElement('div',{className:'sidebar-header'},
+        React.createElement('div',{className:'sidebar-logo'},
+          React.createElement('div',{className:'sidebar-logo-icon'},'♪'),
+          React.createElement('div',null,
+            React.createElement('h1',null,'MelodyManager'),
+            React.createElement('span',null,settings.businessName||'Music Teaching'))
+        )
+      ),
+      React.createElement('nav',{className:'sidebar-nav'},
+        navItems.map(section=>
+          React.createElement('div',{key:section.section},
+            React.createElement('div',{className:'sidebar-section-title'},section.section),
+            section.items.map(item=>
+              React.createElement('button',{
+                key:item.id,
+                className:`nav-item${page===item.id?' active':''}`,
+                onClick:()=>{setPage(item.id);setSidebar(false);}
+              },
+                React.createElement('span',{style:{fontSize:16,width:20,textAlign:'center'}},item.icon),
+                item.label,
+                item.id==='payments'&&pendingPayments>0&&React.createElement('span',{className:'nav-badge'},pendingPayments)
+              )
+            )
+          )
+        )
+      ),
+      React.createElement('div',{style:{padding:14,borderTop:'1px solid var(--border-color)',textAlign:'center',fontSize:10,color:'var(--text-tertiary)'}},'MelodyManager v1.0')
+    ),
+    // Main
+    React.createElement('main',{className:'main-content'},renderPage())
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
