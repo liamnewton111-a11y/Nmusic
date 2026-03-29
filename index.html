@@ -258,7 +258,22 @@ function isLessonPaid(lessonId, dateStr) { const p = getLessonPayments(); return
 // ============================================================
 // UTILITY: Jewish Calendar
 // ============================================================
-function hebrewElapsedDays(y) { const m = Math.floor((235*y-234)/19); const p = 12084+13753*m; let d = 29*m+Math.floor(p/25920); if(3*(d+1)%7<3) d++; return d; }
+function hebrewElapsedDays(y) {
+  const m = Math.floor((235*y-234)/19);
+  const p = 12084+13753*m;
+  let d = 29*m+Math.floor(p/25920);
+  const r = p % 25920;
+  const dow = (d+1) % 7; // 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat
+  // Dechiyah: Molad Zaken (molad >= 18h = 19440 parts)
+  if (r >= 19440) { d++; }
+  // Dechiyah: GaTRaD (Tue >= 9h204p in non-leap year)
+  else if (dow === 2 && r >= 9924 && !isLeapYear(y)) { d++; }
+  // Dechiyah: BeTUTaKPaT (Mon >= 15h589p after leap year)
+  else if (dow === 1 && r >= 16789 && isLeapYear(y-1)) { d++; }
+  // Dechiyah: Lo ADU (Sun/Wed/Fri)
+  if(3*(d+1)%7<3) d++;
+  return d;
+}
 function hebrewYearDays(y) { return hebrewElapsedDays(y+1)-hebrewElapsedDays(y); }
 function isLeapYear(y) { return ((7*y+1)%19)<7; }
 
@@ -270,7 +285,7 @@ function hebrewMonthDays(y, m) {
   if(m===2) return yd%10===5?30:29;
   if(m===3) return yd%10===3?29:30;
   if(m===6) return isLeapYear(y)?30:29;
-  if(m===7) return 29;
+  if(m===7) return isLeapYear(y)?29:0;
   if([1,5,8,10,12].includes(m)) return 30;
   return 29;
 }
@@ -289,15 +304,16 @@ function hebNum(n) {
 function gregToHeb(gY, gM, gD) {
   let hY = gY + 3760 + (gM >= 9 ? 1 : 0);
   const tJD = gregorianToJD(gY, gM, gD);
-  let t1 = hebrewElapsedDays(hY) + 347997;
-  while(t1 > tJD) { hY--; t1 = hebrewElapsedDays(hY) + 347997; }
-  let nt = hebrewElapsedDays(hY+1) + 347997;
-  while(nt <= tJD) { hY++; t1 = nt; nt = hebrewElapsedDays(hY+1) + 347997; }
+  let t1 = hebrewElapsedDays(hY) + 347998;
+  while(t1 > tJD) { hY--; t1 = hebrewElapsedDays(hY) + 347998; }
+  let nt = hebrewElapsedDays(hY+1) + 347998;
+  while(nt <= tJD) { hY++; t1 = nt; nt = hebrewElapsedDays(hY+1) + 347998; }
   let doy = tJD - t1 + 1;
   let hM = 1;
-  const max = isLeapYear(hY) ? 13 : 12;
-  for(let m=1; m<=max; m++) { const md = hebrewMonthDays(hY, m); if(doy <= md) { hM = m; break; } doy -= md; hM = m+1; }
-  return { year: hY, month: hM, day: doy, monthName: HEB_MONTHS[hM]||'', monthHeb: HEB_MONTHS_HEB[hM]||'', dayHeb: hebNum(doy) };
+  for(let m=1; m<=13; m++) { const md = hebrewMonthDays(hY, m); if(md===0) continue; if(doy <= md) { hM = m; break; } doy -= md; hM = m+1; if(hM===7 && !isLeapYear(hY)) hM=8; }
+  const mName = (hM===6 && isLeapYear(hY)) ? 'Adar I' : (HEB_MONTHS[hM]||'');
+  const mHeb = (hM===6 && isLeapYear(hY)) ? 'אדר א׳' : (HEB_MONTHS_HEB[hM]||'');
+  return { year: hY, month: hM, day: doy, monthName: mName, monthHeb: mHeb, dayHeb: hebNum(doy) };
 }
 
 function getHebStr(date) { const h=gregToHeb(date.getFullYear(), date.getMonth()+1, date.getDate()); return `${h.dayHeb} ${h.monthHeb}`; }
@@ -308,10 +324,9 @@ function lastWeekday(y,m,wd) { const l=new Date(y,m,0); const d=l.getDate()-((l.
 function fmtD(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
 function hebToGreg(hY, hM, hD) {
-  let t1 = hebrewElapsedDays(hY) + 347997;
+  let t1 = hebrewElapsedDays(hY) + 347998;
   let total = 0;
-  const max = isLeapYear(hY) ? 13 : 12;
-  for(let m=1; m<hM && m<=max; m++) total += hebrewMonthDays(hY, m);
+  for(let m=1; m<hM && m<=13; m++) total += hebrewMonthDays(hY, m);
   total += hD - 1;
   return jdToGregorian(t1 + total);
 }
