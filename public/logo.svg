@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180">
+  <defs>
+    <style>
+      .logo-text { font-family: 'Georgia', 'Times New Roman', serif; font-weight: bold; }
+      .logo-sub { font-family: 'Arial', sans-serif; font-weight: 400; letter-spacing: 8px; }
+    </style>
+  </defs>
+  <!-- N -->
+  <text x="20" y="120" class="logo-text" font-size="110" fill="currentColor">N</text>
+  <!-- Music note forming the OO -->
+  <g transform="translate(115, 18)">
+    <!-- First O with note stem -->
+    <ellipse cx="52" cy="88" rx="40" ry="38" fill="none" stroke="currentColor" stroke-width="10"/>
+    <ellipse cx="42" cy="95" rx="16" ry="11" fill="currentColor" transform="rotate(-20, 42, 95)"/>
+    <!-- Note stem and flag -->
+    <line x1="78" y1="90" x2="78" y2="15" stroke="currentColor" stroke-width="8"/>
+    <path d="M78,15 Q95,20 92,40 Q89,50 78,45" fill="currentColor"/>
+    <!-- Second O -->
+    <ellipse cx="135" cy="88" rx="40" ry="38" fill="none" stroke="currentColor" stroke-width="10"/>
+  </g>
+  <!-- N -->
+  <text x="300" y="120" class="logo-text" font-size="110" fill="currentColor">N</text>
+  <!-- MUSIC subtitle -->
+  <text x="200" y="162" class="logo-sub" font-size="22" fill="currentColor" text-anchor="middle">MUSIC</text>
+</svg>

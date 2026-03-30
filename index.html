@@ -55,9 +55,13 @@ body { background: var(--bg-primary); color: var(--text-primary); transition: ba
 .sidebar { width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; transition: transform 0.3s, background 0.3s; }
 .sidebar-header { padding: 20px 16px; border-bottom: 1px solid var(--border-color); }
 .sidebar-logo { display: flex; align-items: center; gap: 10px; }
+.sidebar-logo-img { width: 100%; max-width: 180px; height: auto; filter: brightness(0) invert(1); margin: 0 auto; display: block; }
+[data-theme="light"] .sidebar-logo-img { filter: brightness(0); }
 .sidebar-logo-icon { width: 36px; height: 36px; background: var(--bg-accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
 .sidebar-logo h1 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
 .sidebar-logo span { font-size: 11px; color: var(--text-secondary); display: block; margin-top: 1px; }
+.btn-calendar-quick { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px 20px; margin-bottom: 16px; background: var(--bg-accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-calendar-quick:hover { background: var(--bg-accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .sidebar-nav { flex: 1; padding: 10px; overflow-y: auto; }
 .sidebar-section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-tertiary); padding: 8px 10px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: all 0.2s; }
@@ -200,53 +204,59 @@ tr:hover td { background: var(--bg-hover); }
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; padding: 10px; padding-top: 50px; }
+  .main-content { margin-left: 0; padding: 12px; padding-top: 54px; }
   .mobile-menu-btn { display: flex; }
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
-  .stat-card { padding: 10px 8px; gap: 8px; }
-  .stat-card h3 { font-size: 16px; }
-  .stat-card p { font-size: 10px; }
-  .stat-icon { width: 28px; height: 28px; font-size: 13px; flex-shrink: 0; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card { padding: 14px 12px; gap: 10px; }
+  .stat-card h3 { font-size: 22px; }
+  .stat-card p { font-size: 13px; }
+  .stat-icon { width: 36px; height: 36px; font-size: 16px; flex-shrink: 0; }
   .week-view { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
-  .cal-grid { gap: 1px; }
-  .cal-day { min-height: 44px; padding: 2px; font-size: 11px; }
-  .cal-day .day-num { font-size: 12px; }
-  .cal-day .heb-date { font-size: 7px; }
-  .cal-day .day-ev { font-size: 8px; padding: 1px 2px; margin-bottom: 1px; }
-  .cal-hdr { font-size: 10px; padding: 6px 2px; }
-  .cal-day-lg { min-height: 100px; padding: 6px; }
-  .cal-day-lg .day-num { font-size: 15px; }
-  .cal-day-lg .heb-date { font-size: 10px; }
-  .cal-day-lg .day-ev { font-size: 10px; padding: 3px 5px; }
-  .today-banner { flex-direction: column; text-align: center; gap: 8px; padding: 16px; }
-  .today-banner h2 { font-size: 20px; }
+  .cal-grid { gap: 2px; }
+  .cal-day { min-height: 52px; padding: 4px 3px; }
+  .cal-day .day-num { font-size: 16px; font-weight: 600; }
+  .cal-day .heb-date { font-size: 10px; }
+  .cal-day .day-ev { font-size: 9px; padding: 2px 3px; margin-bottom: 1px; }
+  .cal-hdr { font-size: 13px; padding: 8px 2px; font-weight: 600; }
+  .cal-day-lg { min-height: 110px; padding: 8px; }
+  .cal-day-lg .day-num { font-size: 20px; }
+  .cal-day-lg .heb-date { font-size: 13px; }
+  .cal-day-lg .day-ev { font-size: 13px; padding: 4px 6px; }
+  .today-banner { flex-direction: column; text-align: center; gap: 10px; padding: 20px; }
+  .today-banner h2 { font-size: 24px; }
+  .today-banner p { font-size: 16px; }
   .two-col { grid-template-columns: 1fr !important; }
-  .card { padding: 14px; }
-  .card-title { font-size: 15px; }
+  .card { padding: 16px; }
+  .card-title { font-size: 18px; }
   .card-header { flex-direction: column; gap: 8px; align-items: flex-start; }
-  h2 { font-size: 20px; }
+  h2 { font-size: 24px; }
   .page-header { flex-direction: column; gap: 8px; align-items: flex-start; }
-  .page-header-sub { font-size: 12px; }
-  table { font-size: 12px; }
-  table th, table td { padding: 6px 5px; }
-  .btn { padding: 6px 10px; font-size: 12px; }
-  .btn-sm { padding: 3px 6px; font-size: 10px; }
-  .modal { padding: 16px; width: 95%; }
-  .badge { font-size: 10px; padding: 2px 6px; }
-  .lesson-card { padding: 8px; }
-  .legend-bar { flex-wrap: wrap; gap: 6px; padding: 8px; }
-  .legend-bar span { font-size: 10px; }
+  .page-header-sub { font-size: 14px; }
+  table { font-size: 14px; }
+  table th, table td { padding: 8px 6px; }
+  .btn { padding: 8px 14px; font-size: 14px; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .modal { padding: 20px; width: 95%; }
+  .badge { font-size: 12px; padding: 3px 8px; }
+  .lesson-card { padding: 10px; }
+  .legend-bar { flex-wrap: wrap; gap: 8px; padding: 10px; }
+  .legend-bar span { font-size: 12px; }
   .week-col { min-width: unset; }
+  .holiday-name { font-size: 15px; }
+  .holiday-date-text { font-size: 13px; }
+  .holiday-item { padding: 10px 12px; }
+  .form-label { font-size: 14px; }
+  .form-input, .form-select, .form-textarea { font-size: 16px; padding: 10px 12px; }
 }
-@media (max-width: 400px) {
+@media (max-width: 360px) {
   .stats-grid { grid-template-columns: 1fr; }
-  .main-content { padding: 6px; padding-top: 48px; }
-  .cal-day { min-height: 38px; }
-  .cal-day .day-num { font-size: 11px; }
-  .cal-day .heb-date { font-size: 6px; }
+  .main-content { padding: 8px; padding-top: 50px; }
+  .cal-day { min-height: 46px; }
+  .cal-day .day-num { font-size: 14px; }
+  .cal-day .heb-date { font-size: 8px; }
   .cal-day .day-ev { display: none; }
-  .cal-day.holiday::after, .cal-day.shabbat::after { content: ''; display: block; width: 4px; height: 4px; border-radius: 50%; margin: 1px auto 0; }
+  .cal-day.holiday::after, .cal-day.shabbat::after { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; margin: 2px auto 0; }
   .cal-day.holiday::after { background: var(--jewish-gold); }
 }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -544,6 +554,8 @@ function Dashboard({onNav}) {
         dow===5 && React.createElement('div', {style:{marginTop:6,fontSize:13}}, 'Shabbat starts tonight!')
       )
     ),
+    // Quick Calendar Button
+    React.createElement('button', {className:'btn-calendar-quick', onClick:()=>onNav('calendar')}, '📅', ' Open Calendar'),
     // Stats
     React.createElement('div', {className:'stats-grid'},
       React.createElement('div', {className:'stat-card', onClick:()=>onNav('schools')},
@@ -1223,13 +1235,8 @@ function App() {
     React.createElement('button',{className:'mobile-menu-btn',onClick:()=>setSidebar(!sidebarOpen)},'☰'),
     // Sidebar
     React.createElement('aside',{className:`sidebar${sidebarOpen?' open':''}`},
-      React.createElement('div',{className:'sidebar-header'},
-        React.createElement('div',{className:'sidebar-logo'},
-          React.createElement('div',{className:'sidebar-logo-icon'},'♪'),
-          React.createElement('div',null,
-            React.createElement('h1',null,'MelodyManager'),
-            React.createElement('span',null,settings.businessName||'Music Teaching'))
-        )
+      React.createElement('div',{className:'sidebar-header',onClick:()=>{setPage('dashboard');setSidebar(false);},style:{cursor:'pointer'}},
+        React.createElement('img',{src:'logo.svg',alt:'Noon Music',className:'sidebar-logo-img'})
       ),
       React.createElement('nav',{className:'sidebar-nav'},
         navItems.map(section=>
