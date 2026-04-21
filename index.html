@@ -101,7 +101,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 /* FORM */
 .form-group{margin-bottom:14px}
 .form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
-.form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font);transition:border-color var(--tr);outline:none}
+.form-input{width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--font);transition:border-color var(--tr);outline:none;min-width:0}
 .form-input:focus{border-color:var(--accent)}
 .form-select{appearance:none;cursor:pointer}
 .form-textarea{resize:vertical;min-height:70px}
@@ -231,30 +231,45 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
   .modal{max-width:100%;margin:0;border-radius:14px}
 }
 
-/* BOTTOM NAV (mobile only) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:150;padding-bottom:env(safe-area-inset-bottom,0)}
-.bottom-nav-inner{display:flex;height:58px}
-.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);cursor:pointer;font-size:10px;font-weight:600;padding:6px 0;border:none;background:transparent;font-family:var(--font);transition:color var(--tr)}
+/* BOTTOM NAV (mobile only, floating pill) */
+.bottom-nav{display:none;position:fixed;left:10px;right:10px;bottom:calc(14px + env(safe-area-inset-bottom,0));background:var(--bg2);border:1px solid var(--border);border-radius:18px;z-index:150;box-shadow:0 6px 24px rgba(0,0,0,.45);overflow:hidden;backdrop-filter:blur(6px)}
+.bottom-nav-inner{display:flex;height:60px}
+.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text3);cursor:pointer;font-size:10px;font-weight:600;padding:6px 0;border:none;background:transparent;font-family:var(--font);transition:color var(--tr)}
 .bottom-nav-item.active{color:var(--accent)}
-.bottom-nav-icon{font-size:20px;line-height:1}
+.bottom-nav-item.active .bottom-nav-icon{filter:drop-shadow(0 0 8px var(--accent))}
+.bottom-nav-icon{display:flex;align-items:center;justify-content:center;width:22px;height:22px}
+.bottom-nav-icon svg{width:22px;height:22px;display:block}
 
-/* PAYMENTS mobile card-ified table */
+/* MODAL overflow fix (prevent sideways scroll) */
+.modal{overflow-x:hidden}
+.modal-body,.modal-header,.modal-footer{overflow-x:hidden}
+
+/* PAYMENTS list (mobile compact) */
+.pay-desktop-only{display:block}
+.pay-mobile-only{display:none}
+.pay-row{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.pay-row-left{flex:1;min-width:0}
+.pay-row-title{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.pay-row-sub{font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pay-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.pay-row-amt{font-weight:700;font-size:14px}
+
+/* Schools payments list (mobile) */
+.schoolpay-desktop{display:block}
+.schoolpay-mobile{display:none}
+
 @media(max-width:640px){
-  .pay-table,.pay-table tbody,.pay-table tr,.pay-table td{display:block;width:100%}
-  .pay-table thead{display:none}
-  .pay-table tr{background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;padding:12px}
-  .pay-table td{border:none!important;padding:4px 0;font-size:13px}
-  .pay-table td::before{content:attr(data-label);display:inline-block;width:78px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-  .pay-table td[data-label=""]::before{display:none}
-  .pay-table tr:hover td{background:transparent}
-  .pay-hide-mobile{display:none!important}
+  .pay-desktop-only{display:none}
+  .pay-mobile-only{display:block}
+  .schoolpay-desktop{display:none}
+  .schoolpay-mobile{display:block}
 }
 
 @media(max-width:768px){
   .bottom-nav{display:block}
-  .page-content{padding-bottom:78px!important}
-  .tweaks-panel{bottom:78px!important}
-  .toast{bottom:78px!important}
+  .page-content{padding-bottom:calc(98px + env(safe-area-inset-bottom,0))!important}
+  .tweaks-panel{bottom:calc(98px + env(safe-area-inset-bottom,0))!important}
+  .toast{bottom:calc(98px + env(safe-area-inset-bottom,0))!important}
 }
 </style>
 <template id="__bundler_thumbnail" data-bg-color="#0d0d1a">
@@ -473,6 +488,50 @@ function parseICSDate(v){
 
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
+/* ─── ICONS (Lucide-style inline SVG) ─── */
+function Icon({ name, size = 18, stroke = 2, style, className }) {
+  const p = {
+    width: size, height: size, viewBox: '0 0 24 24',
+    fill: 'none', stroke: 'currentColor', strokeWidth: stroke,
+    strokeLinecap: 'round', strokeLinejoin: 'round',
+    style, className,
+  };
+  switch (name) {
+    case 'home': return <svg {...p}><path d="M3 12l9-9 9 9"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>;
+    case 'calendar': return <svg {...p}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>;
+    case 'school': return <svg {...p}><path d="M3 10l9-5 9 5-9 5-9-5z"/><path d="M7 12v5c0 1.5 2.2 3 5 3s5-1.5 5-3v-5"/><path d="M21 10v6"/></svg>;
+    case 'clock': return <svg {...p}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>;
+    case 'wallet': return <svg {...p}><path d="M3 7a2 2 0 012-2h13a1 1 0 011 1v2"/><path d="M3 7v12a2 2 0 002 2h15a1 1 0 001-1v-4"/><path d="M21 9h-4a3 3 0 000 6h4"/></svg>;
+    case 'chart': return <svg {...p}><path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/></svg>;
+    case 'settings': return <svg {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>;
+    case 'music': return <svg {...p}><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>;
+    case 'menu': return <svg {...p}><path d="M3 6h18M3 12h18M3 18h18"/></svg>;
+    case 'close': return <svg {...p}><path d="M18 6L6 18M6 6l12 12"/></svg>;
+    case 'edit': return <svg {...p}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>;
+    case 'trash': return <svg {...p}><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>;
+    case 'map-pin': return <svg {...p}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>;
+    case 'message': return <svg {...p}><path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.5 8.5 0 018 8v.5z"/></svg>;
+    case 'lock': return <svg {...p}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>;
+    case 'bell': return <svg {...p}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>;
+    case 'palette': return <svg {...p}><path d="M12 2a10 10 0 100 20 2 2 0 002-2v-1a2 2 0 012-2h2a4 4 0 004-4 10 10 0 00-10-10z"/><circle cx="8.5" cy="9.5" r="1.2"/><circle cx="12" cy="7" r="1.2"/><circle cx="15.5" cy="9.5" r="1.2"/><circle cx="17" cy="13" r="1.2"/></svg>;
+    case 'database': return <svg {...p}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>;
+    case 'lightbulb': return <svg {...p}><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 017 7c0 2.7-1.7 4.7-3 6v3H8v-3c-1.3-1.3-3-3.3-3-6a7 7 0 017-7z"/></svg>;
+    case 'upload': return <svg {...p}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>;
+    case 'download': return <svg {...p}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>;
+    case 'check': return <svg {...p}><path d="M5 12l5 5L20 7"/></svg>;
+    case 'plus': return <svg {...p}><path d="M12 5v14M5 12h14"/></svg>;
+    case 'undo': return <svg {...p}><path d="M3 7v6h6"/><path d="M3 13a9 9 0 109-6 9 9 0 00-6.3 2.7L3 13"/></svg>;
+    case 'arrow-left': return <svg {...p}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>;
+    case 'arrow-right': return <svg {...p}><path d="M5 12h14M12 5l7 7-7 7"/></svg>;
+    case 'user': return <svg {...p}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>;
+    case 'phone': return <svg {...p}><path d="M22 16.9v3a2 2 0 01-2.2 2 20 20 0 01-8.6-3.1 19.6 19.6 0 01-6-6A20 20 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8 9.7a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>;
+    case 'eye': return <svg {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>;
+    case 'eye-off': return <svg {...p}><path d="M17.9 17.9A10.9 10.9 0 0112 20C5 20 1 12 1 12a19.4 19.4 0 015.1-6M9.9 4.2A11 11 0 0112 4c7 0 11 8 11 8a19.5 19.5 0 01-2.2 3.3"/><path d="M14.1 14.1a3 3 0 11-4.2-4.2"/><path d="M1 1l22 22"/></svg>;
+    case 'sliders': return <svg {...p}><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>;
+    default: return null;
+  }
+}
+
 /* ─── TOAST ─── */
 function Toast({ msg, onDone }) {
   useEffect(() => {const t = setTimeout(onDone, 2800);return () => clearTimeout(t);}, []);
@@ -488,10 +547,10 @@ function LessonModal({ title, initial, schools, onSave, onClose }) {
 
   function handleSave() {
     if (!schools.length) { setErr('Please add a school first (Schools tab) before creating a lesson.'); return; }
-    if (!f.studentName || !f.studentName.trim()) { setErr('Please enter a class or group name.'); return; }
     if (!f.schoolId) { setErr('Please pick a school.'); return; }
     const school = schools.find((s) => s.id === f.schoolId);
-    onSave({ ...f, rate: Number(f.rate) || school?.rate || 80, duration: Number(f.duration) || 60, rateType: f.rateType || 'hourly' });
+    const studentName = (f.studentName && f.studentName.trim()) || school?.name || 'Lesson';
+    onSave({ ...f, studentName, rate: Number(f.rate) || school?.rate || 80, duration: Number(f.duration) || 60, rateType: f.rateType || 'hourly' });
   }
 
   return (
@@ -502,10 +561,8 @@ function LessonModal({ title, initial, schools, onSave, onClose }) {
           <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">
-          <div className="form-group"><label className="form-label">Class / Group Name *</label>
-            <input className="form-input" value={f.studentName} onChange={(e) => set({ studentName: e.target.value })} placeholder="e.g. Grade 3 Music" autoFocus /></div>
           <div className="form-group"><label className="form-label">School *</label>
-            <select className="form-input form-select" value={f.schoolId} onChange={(e) => {const s = schools.find((x) => x.id === e.target.value);set({ schoolId: e.target.value, rate: s?.rate || f.rate });}}>
+            <select className="form-input form-select" autoFocus value={f.schoolId} onChange={(e) => {const s = schools.find((x) => x.id === e.target.value);set({ schoolId: e.target.value, rate: s?.rate || f.rate });}}>
               {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select></div>
 
@@ -620,15 +677,15 @@ function LessonDetailModal({ lessonDate, payments, setPayments, getSchool, schoo
           )}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {schoolFull.address &&
-            <button className="btn btn-waze" style={{ flex: 1 }} onClick={() => openWaze(schoolFull.address)}>
-                <span>🗺</span> Navigate to School
+            <button className="btn btn-waze" style={{ flex: 1, display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8 }} onClick={() => openWaze(schoolFull.address)}>
+                <Icon name="map-pin" size={16} /> Navigate to School
               </button>
             }
           </div>
           {schoolFull.address && <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 8, textAlign: 'center' }}>{schoolFull.address}</div>}
           <hr className="divider" />
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-secondary btn-sm" onClick={() => onEdit(l)}>✏️ Edit Lesson</button>
+            <button className="btn btn-secondary btn-sm" style={{display:'inline-flex', alignItems:'center', gap:6}} onClick={() => onEdit(l)}><Icon name="edit" size={14} /> Edit Lesson</button>
             <span className="chip">{l.frequency || 'weekly'}</span>
             <span className="chip">{l.rateType === 'flat' ? 'Flat rate' : 'Hourly'}</span>
             <span className={`badge ${isPaid ? 'badge-green' : 'badge-red'}`}>{isPaid ? 'Paid' : 'Unpaid'}</span>
@@ -1025,7 +1082,7 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
       <div className="grid-2">
         {/* Today detail */}
         <div className="card">
-          <div className="section-title">📅 Today's Lessons</div>
+          <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="calendar" size={16} /> Today's Lessons</div>
           {todayLessons.length === 0 ? <div className="empty-state"><div>Free today</div></div> : todayLessons.sort((a, b) => a.startTime.localeCompare(b.startTime)).map((l) => {
             const s = getSchool(l.schoolId);const isPaid = payments[payKey(l.id, today)]?.paid;
             return <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
@@ -1041,7 +1098,7 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
 
         {/* Holidays */}
         <div className="card">
-          <div className="section-title">🗓 Upcoming Holidays</div>
+          <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="calendar" size={16} /> Upcoming Holidays</div>
           {upcoming.map((h, i) =>
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
               <span style={{ fontSize: 14 }}>{h.hebrew ? '✡️' : '🇺🇸'}</span>
@@ -1058,7 +1115,7 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
       {/* Week strip */}
       <div className="card" style={{ marginTop: 16 }}>
         <div className="section-title" style={{ justifyContent: 'space-between' }}>
-          <span>📆 This Week</span>
+          <span style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="calendar" size={16} /> This Week</span>
           <button className="btn btn-ghost btn-xs" onClick={() => goToCalendar('week', today)}>Open full week →</button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 8 }}>
@@ -1077,7 +1134,7 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
 
       {/* Suggestions */}
       <div className="suggestion-box" style={{ marginTop: 16 }}>
-        <div className="section-title" style={{ color: 'var(--accent)' }}>💡 Ideas to add next</div>
+        <div className="section-title" style={{ color: 'var(--accent)', display:'inline-flex', alignItems:'center', gap:8 }}><Icon name="lightbulb" size={16} /> Ideas to add next</div>
         {[
         ['Student profiles', 'Track contact info, notes, and lesson history per student'],
         ['School closure dates', 'Mark custom days when a school is closed (not just holidays)'],
@@ -1152,8 +1209,8 @@ function Schools({ schools, setSchools, lessons, payments, getSchool, showToast 
               <div className="flex items-center justify-between" style={{ marginBottom: 6 }}>
                 <div className="school-name">{s.name}</div>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <button className="btn btn-ghost btn-xs" onClick={() => openEdit(s)}>✏️</button>
-                  <button className="btn btn-ghost btn-xs" onClick={() => del(s.id)}>🗑</button>
+                  <button className="btn btn-ghost btn-xs" onClick={() => openEdit(s)} title="Edit"><Icon name="edit" size={14} /></button>
+                  <button className="btn btn-ghost btn-xs" onClick={() => del(s.id)} title="Delete"><Icon name="trash" size={14} /></button>
                 </div>
               </div>
               <div className="school-meta">📍 {s.address || '—'}</div>
@@ -1168,13 +1225,13 @@ function Schools({ schools, setSchools, lessons, payments, getSchool, showToast 
                 <div><div style={{ fontWeight: 700, color: 'var(--red)', fontSize: 13 }}>{fmtMoney(stats.owed)}</div><div style={{ fontSize: 10, color: 'var(--text3)' }}>owed</div></div>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => copySms(s)}>📱 SMS Reminder</button>
-                {s.address && <button className="btn btn-waze btn-sm" onClick={() => openWaze(s.address)}>🗺</button>}
+                <button className="btn btn-secondary btn-sm" style={{ flex: 1, display:'inline-flex', alignItems:'center', justifyContent:'center', gap:6 }} onClick={() => copySms(s)}><Icon name="message" size={14} /> SMS Reminder</button>
+                {s.address && <button className="btn btn-waze btn-sm" onClick={() => openWaze(s.address)} title="Navigate"><Icon name="map-pin" size={14} /></button>}
               </div>
             </div>
           </div>;
         })}
-        {schools.length === 0 && <div className="empty-state" style={{ gridColumn: '1/-1' }}><div className="empty-state-icon">🏫</div><div>No schools yet</div></div>}
+        {schools.length === 0 && <div className="empty-state" style={{ gridColumn: '1/-1' }}><div className="empty-state-icon"><Icon name="school" size={36} /></div><div>No schools yet</div></div>}
       </div>
 
       {modal &&
@@ -1217,7 +1274,7 @@ function Schools({ schools, setSchools, lessons, payments, getSchool, showToast 
       <div className="modal-overlay" onClick={() => setSmsModal(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
             <div className="modal-header">
-              <div className="modal-title">📱 SMS — {smsModal.school.headTeacher}</div>
+              <div className="modal-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="message" size={16} /> SMS — {smsModal.school.headTeacher}</div>
               <button className="btn btn-ghost btn-sm" onClick={() => setSmsModal(null)}>✕</button>
             </div>
             <div className="modal-body">
@@ -1274,8 +1331,8 @@ function Schedule({ schools, lessons, setLessons, getSchool, showToast }) {
                 <span className="chip" style={{ marginTop: 3, fontSize: 10 }}>{l.frequency === 'biweekly' ? 'Every 2 weeks' : l.frequency}</span>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
-                <button className="btn btn-ghost btn-sm" onClick={() => openEdit(l)}>✏️</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => del(l.id)}>🗑</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => openEdit(l)} title="Edit"><Icon name="edit" size={14} /></button>
+                <button className="btn btn-ghost btn-sm" onClick={() => del(l.id)} title="Delete"><Icon name="trash" size={14} /></button>
               </div>
             </div>;
         })}
@@ -1294,15 +1351,15 @@ function Schedule({ schools, lessons, setLessons, getSchool, showToast }) {
                 <div style={{ fontSize: 12, color: 'var(--text3)' }}>{dateFromStr(l.startDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {s.name} · {fmt12(l.startTime)} · ${l.rate}{l.rateType === 'flat' ? ' flat' : '/hr'}</div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
-                <button className="btn btn-ghost btn-sm" onClick={() => openEdit(l)}>✏️</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => del(l.id)}>🗑</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => openEdit(l)} title="Edit"><Icon name="edit" size={14} /></button>
+                <button className="btn btn-ghost btn-sm" onClick={() => del(l.id)} title="Delete"><Icon name="trash" size={14} /></button>
               </div>
             </div>;
         })}
         </div>
       }
 
-      {lessons.length === 0 && <div className="empty-state"><div className="empty-state-icon">🕐</div><div>No lessons yet</div></div>}
+      {lessons.length === 0 && <div className="empty-state"><div className="empty-state-icon"><Icon name="clock" size={36} /></div><div>No lessons yet</div></div>}
 
       {modal === 'form' &&
       <LessonModal title={editing ? 'Edit Lesson' : 'Add Lesson'}
@@ -1387,54 +1444,101 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
         </select>}
       </div>
 
-      {view === 'schools' ?
-      <div className="card"><div className="table-wrap"><table>
-          <thead><tr><th>School</th><th>Head Teacher</th><th>Lessons</th><th>Paid</th><th>Owed</th><th>Overdue</th><th></th></tr></thead>
-          <tbody>{schoolSummary.map((s) =>
+      {view === 'schools' ? (
+        <div className="card">
+          <div className="schoolpay-desktop"><div className="table-wrap"><table>
+            <thead><tr><th>School</th><th>Head Teacher</th><th>Lessons</th><th>Paid</th><th>Owed</th><th>Overdue</th><th></th></tr></thead>
+            <tbody>{schoolSummary.map((s) =>
               <tr key={s.id}>
-              <td><div className="flex items-center gap-8"><div className="school-dot" style={{ background: s.color }} />{s.name}</div></td>
-              <td style={{ color: 'var(--text2)' }}>{s.headTeacher || '—'}</td>
-              <td>{s.count}</td>
-              <td style={{ color: 'var(--green)', fontWeight: 600 }}>{fmtMoney(s.paid)}</td>
-              <td style={{ color: s.owed > 0 ? 'var(--red)' : 'var(--text3)', fontWeight: s.owed > 0 ? 600 : 400 }}>{fmtMoney(s.owed)}</td>
-              <td>{s.overdue > 0 ? <span className="badge badge-gold">{s.overdue}</span> : '—'}</td>
-              <td>{s.owed > 0 && <button className="btn btn-green btn-xs" onClick={() => {const unpaid = occurrences.filter((x) => x.lesson.schoolId === s.id && !x.isPaid);setPayments((p) => {const np = { ...p };unpaid.forEach((x) => np[x.payKey] = { paid: true, paidAt: new Date().toISOString() });return np;});showToast(`${unpaid.length} marked paid ✓`);}}>Mark all paid</button>}</td>
-            </tr>)}
-          </tbody>
-        </table></div></div> :
-
-      <div className="card"><div className="table-wrap"><table className="pay-table">
-          <thead><tr><th>Date</th><th>Class</th><th>School</th><th>Duration</th><th>Amount</th><th>Method</th><th>Status</th><th></th></tr></thead>
-          <tbody>
-            {filtered.map((item, i) =>
-              <tr key={i}>
-                <td data-label="Date" style={{ whiteSpace: 'nowrap', color: 'var(--text2)', fontSize: 12 }}>{dateFromStr(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</td>
-                <td data-label="Class" style={{ fontWeight: 500 }}>{item.lesson.studentName}</td>
-                <td data-label="School"><div className="flex items-center gap-8"><div className="school-dot" style={{ background: item.school.color }} /><span style={{ color: 'var(--text2)' }}>{item.school.name}</span></div></td>
-                <td data-label="Duration" style={{ color: 'var(--text3)' }}>{item.lesson.duration}min{item.lesson.rateType === 'flat' ? ' · flat' : ''}</td>
-                <td data-label="Amount" style={{ fontWeight: 600 }}>{fmtMoney(item.amt)}</td>
-                <td data-label="Method" style={{ color: 'var(--text2)', fontSize: 12 }}>{item.isPaid ? (payments[item.payKey]?.method || '—') : '—'}</td>
-                <td data-label="Status">{item.isPaid ? <span className="badge badge-green">Paid</span> : item.isOverdue ? <span className="badge badge-gold">Overdue</span> : <span className="badge badge-red">Unpaid</span>}</td>
-                <td data-label="">
+                <td><div className="flex items-center gap-8"><div className="school-dot" style={{ background: s.color }} />{s.name}</div></td>
+                <td style={{ color: 'var(--text2)' }}>{s.headTeacher || '—'}</td>
+                <td>{s.count}</td>
+                <td style={{ color: 'var(--green)', fontWeight: 600 }}>{fmtMoney(s.paid)}</td>
+                <td style={{ color: s.owed > 0 ? 'var(--red)' : 'var(--text3)', fontWeight: s.owed > 0 ? 600 : 400 }}>{fmtMoney(s.owed)}</td>
+                <td>{s.overdue > 0 ? <span className="badge badge-gold">{s.overdue}</span> : '—'}</td>
+                <td>{s.owed > 0 && <button className="btn btn-green btn-xs" onClick={() => {const unpaid = occurrences.filter((x) => x.lesson.schoolId === s.id && !x.isPaid);setPayments((p) => {const np = { ...p };unpaid.forEach((x) => np[x.payKey] = { paid: true, paidAt: new Date().toISOString() });return np;});showToast(`${unpaid.length} marked paid ✓`);}}>Mark all paid</button>}</td>
+              </tr>)}
+            </tbody>
+          </table></div></div>
+          <div className="schoolpay-mobile">
+            {schoolSummary.map((s) => (
+              <div key={s.id} className="pay-row">
+                <div style={{ width: 4, height: 40, borderRadius: 2, background: s.color, flexShrink: 0 }} />
+                <div className="pay-row-left">
+                  <div className="pay-row-title">{s.name}</div>
+                  <div className="pay-row-sub">{s.count} lessons · Paid {fmtMoney(s.paid)}{s.overdue > 0 ? ` · ${s.overdue} overdue` : ''}</div>
+                </div>
+                <div className="pay-row-right">
+                  <div className="pay-row-amt" style={{ color: s.owed > 0 ? 'var(--red)' : 'var(--text3)' }}>{fmtMoney(s.owed)}</div>
+                  {s.owed > 0 && <button className="btn btn-green btn-xs" onClick={() => {const unpaid = occurrences.filter((x) => x.lesson.schoolId === s.id && !x.isPaid);setPayments((p) => {const np = { ...p };unpaid.forEach((x) => np[x.payKey] = { paid: true, paidAt: new Date().toISOString() });return np;});showToast(`${unpaid.length} marked paid ✓`);}}>Mark paid</button>}
+                </div>
+              </div>
+            ))}
+            {schoolSummary.length === 0 && <div style={{ textAlign: 'center', color: 'var(--text3)', padding: 24 }}>No schools yet</div>}
+          </div>
+        </div>
+      ) : (
+        <div className="card">
+          <div className="pay-desktop-only"><div className="table-wrap"><table className="pay-table">
+            <thead><tr><th>Date</th><th>Class</th><th>School</th><th>Duration</th><th>Amount</th><th>Method</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {filtered.map((item, i) =>
+                <tr key={i}>
+                  <td data-label="Date" style={{ whiteSpace: 'nowrap', color: 'var(--text2)', fontSize: 12 }}>{dateFromStr(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</td>
+                  <td data-label="Class" style={{ fontWeight: 500 }}>{item.lesson.studentName}</td>
+                  <td data-label="School"><div className="flex items-center gap-8"><div className="school-dot" style={{ background: item.school.color }} /><span style={{ color: 'var(--text2)' }}>{item.school.name}</span></div></td>
+                  <td data-label="Duration" style={{ color: 'var(--text3)' }}>{item.lesson.duration}min{item.lesson.rateType === 'flat' ? ' · flat' : ''}</td>
+                  <td data-label="Amount" style={{ fontWeight: 600 }}>{fmtMoney(item.amt)}</td>
+                  <td data-label="Method" style={{ color: 'var(--text2)', fontSize: 12 }}>{item.isPaid ? (payments[item.payKey]?.method || '—') : '—'}</td>
+                  <td data-label="Status">{item.isPaid ? <span className="badge badge-green">Paid</span> : item.isOverdue ? <span className="badge badge-gold">Overdue</span> : <span className="badge badge-red">Unpaid</span>}</td>
+                  <td data-label="">
+                    {item.isPaid ? (
+                      <button className="btn btn-ghost btn-xs" onClick={() => toggle(item.payKey)}>Undo</button>
+                    ) : openMethodFor === item.payKey ? (
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                        {PAY_METHODS.map((m) => (
+                          <button key={m} className="btn btn-green btn-xs" onClick={() => { toggle(item.payKey, m); setOpenMethodFor(null); }}>{m}</button>
+                        ))}
+                        <button className="btn btn-ghost btn-xs" onClick={() => setOpenMethodFor(null)}><Icon name="close" size={12} /></button>
+                      </div>
+                    ) : (
+                      <button className="btn btn-green btn-xs" onClick={() => setOpenMethodFor(item.payKey)} style={{display:'inline-flex', alignItems:'center', gap:4}}>Pay <Icon name="check" size={12} /></button>
+                    )}
+                  </td>
+                </tr>
+                )}
+              {filtered.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text3)', padding: 32 }}>No lessons found</td></tr>}
+            </tbody>
+          </table></div></div>
+          <div className="pay-mobile-only">
+            {filtered.map((item, i) => (
+              <div key={i} className="pay-row">
+                <div style={{ width: 4, height: 40, borderRadius: 2, background: item.school.color, flexShrink: 0 }} />
+                <div className="pay-row-left">
+                  <div className="pay-row-title">{item.lesson.studentName}</div>
+                  <div className="pay-row-sub">{dateFromStr(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · {item.school.name}{item.isPaid && payments[item.payKey]?.method ? ` · ${payments[item.payKey].method}` : ''}</div>
+                </div>
+                <div className="pay-row-right">
+                  <div className="pay-row-amt">{fmtMoney(item.amt)}</div>
                   {item.isPaid ? (
-                    <button className="btn btn-ghost btn-xs" onClick={() => toggle(item.payKey)}>Undo</button>
+                    <button className="btn btn-ghost btn-xs" onClick={() => toggle(item.payKey)}>Paid · Undo</button>
                   ) : openMethodFor === item.payKey ? (
-                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent:'flex-end' }}>
                       {PAY_METHODS.map((m) => (
                         <button key={m} className="btn btn-green btn-xs" onClick={() => { toggle(item.payKey, m); setOpenMethodFor(null); }}>{m}</button>
                       ))}
-                      <button className="btn btn-ghost btn-xs" onClick={() => setOpenMethodFor(null)}>✕</button>
+                      <button className="btn btn-ghost btn-xs" onClick={() => setOpenMethodFor(null)}><Icon name="close" size={12} /></button>
                     </div>
                   ) : (
-                    <button className="btn btn-green btn-xs" onClick={() => setOpenMethodFor(item.payKey)}>Pay ✓</button>
+                    <button className="btn btn-green btn-xs" onClick={() => setOpenMethodFor(item.payKey)}>{item.isOverdue ? 'Overdue' : 'Mark paid'}</button>
                   )}
-                </td>
-              </tr>
-              )}
-            {filtered.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text3)', padding: 32 }}>No lessons found</td></tr>}
-          </tbody>
-        </table></div></div>
-      }
+                </div>
+              </div>
+            ))}
+            {filtered.length === 0 && <div style={{ textAlign: 'center', color: 'var(--text3)', padding: 24 }}>No lessons found</div>}
+          </div>
+        </div>
+      )}
     </div>);
 
 }
@@ -1587,7 +1691,7 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
   return (
     <div style={{ maxWidth: 580 }}>
       <div className="card" style={{ marginBottom: 14 }}>
-        <div className="section-title">🔔 Notifications</div>
+        <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="bell" size={16} /> Notifications</div>
         <div className="flex items-center justify-between mb-16">
           <div><div style={{ fontWeight: 600, fontSize: 13 }}>Evening reminder</div><div style={{ fontSize: 12, color: 'var(--text3)' }}>Notified about next day's lessons</div></div>
           <label className="toggle"><input type="checkbox" checked={settings.notifEnabled || false} onChange={(e) => setSettings((s) => ({ ...s, notifEnabled: e.target.checked }))} /><span className="toggle-slider" /></label>
@@ -1602,7 +1706,7 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
         </div>
       </div>
       <div className="card" style={{ marginBottom: 14 }}>
-        <div className="section-title">🎨 Appearance</div>
+        <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="palette" size={16} /> Appearance</div>
         <div className="flex items-center justify-between">
           <div style={{ fontWeight: 600, fontSize: 13 }}>Theme</div>
           <div className="pill-tabs">
@@ -1612,7 +1716,7 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
         </div>
       </div>
       <div className="card" style={{ marginBottom: 14 }}>
-        <div className="section-title">📱 Import from iPhone Calendar</div>
+        <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="upload" size={16} /> Import from iPhone Calendar</div>
         <div style={{ fontSize: 12.5, color: 'var(--text3)', marginBottom: 10, lineHeight: 1.55 }}>
           Export your iPhone Calendar as a <code>.ics</code> file, then upload it here.<br />
           <b>iPhone:</b> share a calendar via iCloud → choose "Public Calendar" → copy link, open it in Safari, then "Save to Files."<br />
@@ -1659,23 +1763,23 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
         </div>
       )}
       <div className="card">
-        <div className="section-title">💾 Data Backup</div>
+        <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="database" size={16} /> Data Backup</div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={exportData}>⬇️ Export JSON</button>
           <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>⬆️ Import JSON<input type="file" accept=".json" style={{ display: 'none' }} onChange={importData} /></label>
-          <button className="btn btn-danger" onClick={() => {if (confirm('Clear ALL data?')) {[KEY.schools, KEY.lessons, KEY.payments].forEach((k) => localStorage.removeItem(k));showToast('Cleared');}}}>🗑 Clear All</button>
+          <button className="btn btn-danger" style={{display:'inline-flex', alignItems:'center', gap:6}} onClick={() => {if (confirm('Clear ALL data?')) {[KEY.schools, KEY.lessons, KEY.payments].forEach((k) => localStorage.removeItem(k));showToast('Cleared');}}}><Icon name="trash" size={14} /> Clear All</button>
         </div>
         <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text3)' }}>{schools.length} schools · {lessons.length} lessons · {Object.keys(payments).length} payment records</div>
       </div>
 
       <div className="card" style={{marginTop:14}}>
-        <div className="section-title">🔒 Access</div>
+        <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="lock" size={16} /> Access</div>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
           <div>
             <div style={{fontWeight:600,fontSize:13}}>Lock this device</div>
             <div style={{fontSize:12,color:'var(--text3)'}}>Signs out — password needed to re-enter</div>
           </div>
-          <button className="btn btn-secondary" onClick={()=>{localStorage.removeItem('nm_unlocked');window.location.reload();}}>🔒 Lock Now</button>
+          <button className="btn btn-secondary" style={{display:'inline-flex', alignItems:'center', gap:6}} onClick={()=>{localStorage.removeItem('nm_unlocked');window.location.reload();}}><Icon name="lock" size={14} /> Lock Now</button>
         </div>
         <div style={{fontSize:12,color:'var(--text3)'}}>Current password is set in the app file. Contact your developer to change it.</div>
       </div>
@@ -1686,18 +1790,18 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
 /* ─── BOTTOM NAV (mobile) ─── */
 function BottomNav({ page, setPage }) {
   const items = [
-    { id: 'dashboard', icon: '🏠', label: 'Home' },
-    { id: 'calendar', icon: '📅', label: 'Calendar' },
-    { id: 'schools', icon: '🏫', label: 'Schools' },
-    { id: 'schedule', icon: '🕐', label: 'Schedule' },
-    { id: 'payments', icon: '💰', label: 'Payments' },
+    { id: 'dashboard', icon: 'home', label: 'Home' },
+    { id: 'calendar', icon: 'calendar', label: 'Calendar' },
+    { id: 'schools', icon: 'school', label: 'Schools' },
+    { id: 'schedule', icon: 'clock', label: 'Schedule' },
+    { id: 'payments', icon: 'wallet', label: 'Payments' },
   ];
   return (
     <nav className="bottom-nav">
       <div className="bottom-nav-inner">
         {items.map((i) => (
           <button key={i.id} className={`bottom-nav-item${page === i.id ? ' active' : ''}`} onClick={() => setPage(i.id)}>
-            <div className="bottom-nav-icon">{i.icon}</div>
+            <div className="bottom-nav-icon"><Icon name={i.icon} size={22} /></div>
             <div>{i.label}</div>
           </button>
         ))}
@@ -1763,10 +1867,10 @@ function App() {
   }, []);
 
   const nav = [
-  { section: 'Overview', items: [{ id: 'dashboard', label: 'Dashboard', icon: '🏠' }, { id: 'calendar', label: 'Calendar', icon: '📅' }] },
-  { section: 'Management', items: [{ id: 'schools', label: 'Schools', icon: '🏫' }, { id: 'schedule', label: 'Schedule', icon: '🕐' }, { id: 'payments', label: 'Payments', icon: '💰' }] },
-  { section: 'Reports', items: [{ id: 'revenue', label: 'Revenue', icon: '📊' }] },
-  { section: 'System', items: [{ id: 'settings', label: 'Settings', icon: '⚙️' }] }];
+  { section: 'Overview', items: [{ id: 'dashboard', label: 'Dashboard', icon: 'home' }, { id: 'calendar', label: 'Calendar', icon: 'calendar' }] },
+  { section: 'Management', items: [{ id: 'schools', label: 'Schools', icon: 'school' }, { id: 'schedule', label: 'Schedule', icon: 'clock' }, { id: 'payments', label: 'Payments', icon: 'wallet' }] },
+  { section: 'Reports', items: [{ id: 'revenue', label: 'Revenue', icon: 'chart' }] },
+  { section: 'System', items: [{ id: 'settings', label: 'Settings', icon: 'settings' }] }];
 
   const titles = { dashboard: 'Dashboard', calendar: 'Calendar', schools: 'Schools', schedule: 'Weekly Schedule', payments: 'Payments', revenue: 'Revenue', settings: 'Settings' };
   const shared = { schools, setSchools, lessons, setLessons, payments, setPayments, settings, setSettings, showToast, getSchool };
@@ -1777,7 +1881,7 @@ function App() {
     <>
       <div className={`sidebar${sidebarOpen ? ' open' : ''}`}>
         <div className="sidebar-logo">
-          <div className="logo-mark">🎵</div>
+          <div className="logo-mark" style={{ color: '#fff' }}><Icon name="music" size={20} stroke={2.2} /></div>
           <div><div className="logo-text">Noon Music</div><div className="logo-sub">Teacher Dashboard</div></div>
         </div>
         <nav className="sidebar-nav">
@@ -1786,7 +1890,7 @@ function App() {
               <div className="nav-section-label">{s.section}</div>
               {s.items.map((item) =>
             <div key={item.id} className={`nav-item${page === item.id ? ' active' : ''}`} onClick={() => { setPage(item.id); setSidebarOpen(false); }}>
-                  <span className="nav-icon">{item.icon}</span>{item.label}
+                  <span className="nav-icon"><Icon name={item.icon} size={17} /></span>{item.label}
                 </div>
             )}
             </div>
@@ -1828,7 +1932,7 @@ function App() {
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
 
       <div className={`tweaks-panel${tweaksOpen ? ' open' : ''}`}>
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 14 }}>⚙️ Tweaks</div>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 14, display:'inline-flex', alignItems:'center', gap:6 }}><Icon name="sliders" size={14} /> Tweaks</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, fontSize: 12, color: 'var(--text2)' }}>
           <span>Light mode</span>
           <label className="toggle"><input type="checkbox" checked={settings.theme === 'light'} onChange={(e) => setSettings((s) => ({ ...s, theme: e.target.checked ? 'light' : 'dark' }))} /><span className="toggle-slider" /></label>
@@ -1898,8 +2002,8 @@ function LockScreen({ onUnlock }) {
         <div style={{
           width: 56, height: 56, background: '#7c5ce7', borderRadius: 14,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 26, margin: '0 auto 20px'
-        }}>🎵</div>
+          color: '#fff', margin: '0 auto 20px'
+        }}><Icon name="music" size={26} stroke={2.2} /></div>
         <div style={{ fontSize: 22, fontWeight: 700, color: '#edf2f7', marginBottom: 4 }}>Noon Music</div>
         <div style={{ fontSize: 13, color: '#64748b', marginBottom: 32 }}>Enter your password to continue</div>
 
@@ -1921,8 +2025,9 @@ function LockScreen({ onUnlock }) {
           />
           <button onClick={() => setShow(s => !s)} style={{
             position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-            background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: 16
-          }}>{show ? '🙈' : '👁'}</button>
+            background: 'none', border: 'none', cursor: 'pointer', color: '#64748b',
+            display:'flex', alignItems:'center', justifyContent:'center', padding:0
+          }}><Icon name={show ? 'eye-off' : 'eye'} size={18} /></button>
         </div>
 
         {error && <div style={{ color: '#ff7675', fontSize: 12, marginBottom: 10 }}>Incorrect password — try again</div>}
@@ -1944,7 +2049,7 @@ function LockScreen({ onUnlock }) {
           Unlock
         </button>
 
-        <div style={{ marginTop: 20, fontSize: 11, color: '#2a2a52' }}>🔒 Private — Noon Music Teacher App</div>
+        <div style={{ marginTop: 20, fontSize: 11, color: '#2a2a52', display:'inline-flex', alignItems:'center', gap:6, justifyContent:'center' }}><Icon name="lock" size={12} /> Private — Noon Music Teacher App</div>
       </div>
     </div>
   );
