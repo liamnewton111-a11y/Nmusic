@@ -230,6 +230,32 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
   .page-content{padding:12px}
   .modal{max-width:100%;margin:0;border-radius:14px}
 }
+
+/* BOTTOM NAV (mobile only) */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:150;padding-bottom:env(safe-area-inset-bottom,0)}
+.bottom-nav-inner{display:flex;height:58px}
+.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);cursor:pointer;font-size:10px;font-weight:600;padding:6px 0;border:none;background:transparent;font-family:var(--font);transition:color var(--tr)}
+.bottom-nav-item.active{color:var(--accent)}
+.bottom-nav-icon{font-size:20px;line-height:1}
+
+/* PAYMENTS mobile card-ified table */
+@media(max-width:640px){
+  .pay-table,.pay-table tbody,.pay-table tr,.pay-table td{display:block;width:100%}
+  .pay-table thead{display:none}
+  .pay-table tr{background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;padding:12px}
+  .pay-table td{border:none!important;padding:4px 0;font-size:13px}
+  .pay-table td::before{content:attr(data-label);display:inline-block;width:78px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .pay-table td[data-label=""]::before{display:none}
+  .pay-table tr:hover td{background:transparent}
+  .pay-hide-mobile{display:none!important}
+}
+
+@media(max-width:768px){
+  .bottom-nav{display:block}
+  .page-content{padding-bottom:78px!important}
+  .tweaks-panel{bottom:78px!important}
+  .toast{bottom:78px!important}
+}
 </style>
 <template id="__bundler_thumbnail" data-bg-color="#0d0d1a">
   <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
@@ -392,6 +418,12 @@ function getLessonsOnDate(dateStr,lessons){return lessons.filter(l=>doesLessonOc
 function payKey(lId,ds){return`${lId}:${ds}`}
 function fmt12(t){if(!t)return'';const[h,m]=t.split(':').map(Number);const ap=h>=12?'pm':'am';return`${h%12||12}:${String(m).padStart(2,'0')}${ap}`}
 function fmtMoney(n){return`$${Number(n||0).toLocaleString()}`}
+function lessonEarnings(l){
+  if(!l)return 0;
+  if(l.rateType==='flat')return Number(l.rate)||0;
+  return (Number(l.rate)||0)*((Number(l.duration)||0)/60);
+}
+const PAY_METHODS=['Venmo','Zelle','Cash','ACH','Check'];
 function addMinutes(t,mins){const[h,m]=t.split(':').map(Number);const tot=h*60+m+mins;return`${String(Math.floor(tot/60)%24).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`}
 function getWeekDates(pivot){
   const d=dateFromStr(pivot),start=new Date(d);start.setDate(d.getDate()-d.getDay());
@@ -409,6 +441,32 @@ function openWaze(address){
   const q=encodeURIComponent(address);
   window.open(`https://waze.com/ul?q=${q}&navigate=yes`,'_blank');
 }
+
+/* ═══ ICS PARSER (iPhone Calendar import) ═══════════════════════════ */
+function parseICS(text){
+  const unfolded=text.replace(/\r?\n[ \t]/g,'').split(/\r?\n/);
+  const events=[];let cur=null;
+  for(const ln of unfolded){
+    if(ln==='BEGIN:VEVENT')cur={};
+    else if(ln==='END:VEVENT'){if(cur&&cur.start)events.push(cur);cur=null;}
+    else if(cur){
+      const idx=ln.indexOf(':');if(idx<0)continue;
+      const rawKey=ln.slice(0,idx),val=ln.slice(idx+1);
+      const key=rawKey.split(';')[0];
+      if(key==='DTSTART')cur.start=val;
+      else if(key==='DTEND')cur.end=val;
+      else if(key==='SUMMARY')cur.summary=val.replace(/\\,/g,',').replace(/\\n/g,' ').trim();
+    }
+  }
+  return events;
+}
+function parseICSDate(v){
+  if(!v)return null;
+  const m=v.match(/(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})(Z)?)?/);
+  if(!m)return null;
+  const y=+m[1],mo=+m[2]-1,d=+m[3],h=+(m[4]||0),mi=+(m[5]||0),s=+(m[6]||0);
+  return m[7]==='Z'?new Date(Date.UTC(y,mo,d,h,mi,s)):new Date(y,mo,d,h,mi,s);
+}
 </script>
 
 <script type="text/babel">
@@ -423,14 +481,17 @@ function Toast({ msg, onDone }) {
 
 /* ─── LESSON FORM MODAL (shared by Schedule + Calendar quick-add) ─── */
 function LessonModal({ title, initial, schools, onSave, onClose }) {
-  const [f, setF] = useState(initial || { studentName: '', schoolId: schools[0]?.id || '', dayOfWeek: 1, startTime: '09:00', duration: 60, frequency: 'weekly', rate: 80, startDate: toDateStr(new Date()) });
-  const set = (patch) => setF((p) => ({ ...p, ...patch }));
+  const [f, setF] = useState(initial || { studentName: '', schoolId: schools[0]?.id || '', dayOfWeek: 1, startTime: '09:00', duration: 60, frequency: 'weekly', rate: 80, rateType: 'hourly', startDate: toDateStr(new Date()) });
+  const [err, setErr] = useState('');
+  const set = (patch) => { setF((p) => ({ ...p, ...patch })); setErr(''); };
   const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   function handleSave() {
-    if (!f.studentName.trim() || !f.schoolId) return;
+    if (!schools.length) { setErr('Please add a school first (Schools tab) before creating a lesson.'); return; }
+    if (!f.studentName || !f.studentName.trim()) { setErr('Please enter a class or group name.'); return; }
+    if (!f.schoolId) { setErr('Please pick a school.'); return; }
     const school = schools.find((s) => s.id === f.schoolId);
-    onSave({ ...f, rate: Number(f.rate) || school?.rate || 80, duration: Number(f.duration) || 60 });
+    onSave({ ...f, rate: Number(f.rate) || school?.rate || 80, duration: Number(f.duration) || 60, rateType: f.rateType || 'hourly' });
   }
 
   return (
@@ -475,8 +536,17 @@ function LessonModal({ title, initial, schools, onSave, onClose }) {
             <div className="form-group"><label className="form-label">Duration (minutes)</label>
               <input className="form-input" type="number" min={15} step={5} value={f.duration} onChange={(e) => set({ duration: e.target.value })} /></div>
           </div>
-          <div className="form-group"><label className="form-label">Hourly Rate ($)</label>
-            <input className="form-input" type="number" value={f.rate} onChange={(e) => set({ rate: e.target.value })} /></div>
+          <div className="form-group">
+            <label className="form-label">Rate Type</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 8 }}>
+              <button type="button" className={`btn btn-sm ${(f.rateType||'hourly')==='hourly'?'btn-primary':'btn-secondary'}`} onClick={() => set({ rateType: 'hourly' })}>Hourly ($/hr)</button>
+              <button type="button" className={`btn btn-sm ${f.rateType==='flat'?'btn-primary':'btn-secondary'}`} onClick={() => set({ rateType: 'flat' })}>Flat rate (per lesson)</button>
+            </div>
+            <label className="form-label">{f.rateType==='flat' ? 'Flat amount per lesson ($)' : 'Hourly Rate ($)'}</label>
+            <input className="form-input" type="number" value={f.rate} onChange={(e) => set({ rate: e.target.value })} />
+            {f.rateType==='flat' && <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>Lesson will earn this exact amount regardless of duration.</div>}
+          </div>
+          {err && <div style={{ color: 'var(--red)', background: 'var(--red-bg)', border: '1px solid var(--red)', padding: '9px 12px', borderRadius: 7, fontSize: 12.5, fontWeight: 500, marginTop: 6 }}>⚠️ {err}</div>}
         </div>
         <div className="modal-footer">
           <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
@@ -493,12 +563,19 @@ function LessonDetailModal({ lessonDate, payments, setPayments, getSchool, schoo
   const s = getSchool(l.schoolId);
   const schoolFull = schools.find((x) => x.id === l.schoolId) || {};
   const k = payKey(l.id, ds);
-  const isPaid = payments[k]?.paid;
-  const earned = Math.round((l.rate || 0) * (l.duration / 60));
+  const pay = payments[k];
+  const isPaid = pay?.paid;
+  const earned = Math.round(lessonEarnings(l));
+  const [method, setMethod] = useState(pay?.method || 'Venmo');
 
-  function togglePaid() {
-    setPayments((p) => {const np = { ...p };if (np[k]?.paid) delete np[k];else np[k] = { paid: true, paidAt: new Date().toISOString() };return np;});
-    showToast(isPaid ? 'Marked unpaid' : 'Marked paid ✓');
+  function markPaid(m) {
+    const useMethod = m || method;
+    setPayments((p) => ({ ...p, [k]: { paid: true, paidAt: new Date().toISOString(), method: useMethod } }));
+    showToast(`Paid via ${useMethod} ✓`);
+  }
+  function markUnpaid() {
+    setPayments((p) => { const np = { ...p }; delete np[k]; return np; });
+    showToast('Marked unpaid');
   }
 
   return (
@@ -521,21 +598,39 @@ function LessonDetailModal({ lessonDate, payments, setPayments, getSchool, schoo
             <div className="card-sm"><div className="text-xs text-3">Duration</div><div className="fw-6">{l.duration} min</div></div>
             <div className="card-sm"><div className="text-xs text-3">Earned</div><div className="fw-6">{fmtMoney(earned)}</div></div>
           </div>
+          {isPaid ? (
+            <div>
+              <div style={{ background: 'var(--green-bg)', border: '1px solid var(--green)', borderRadius: 9, padding: '10px 14px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontSize: 11, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: .5, fontWeight: 600 }}>Paid</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--green)' }}>via {pay?.method || 'Cash'}</div>
+                </div>
+                <button className="btn btn-danger btn-sm" onClick={markUnpaid}>↩ Undo</button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: .5, fontWeight: 600, marginBottom: 6 }}>Mark as paid — pick a method</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, marginBottom: 10 }}>
+                {PAY_METHODS.map((m) => (
+                  <button key={m} type="button" className="btn btn-sm" style={{ padding: '10px 4px', fontSize: 12, background: 'var(--green-bg)', color: 'var(--green)', border: '1px solid transparent' }} onClick={() => markPaid(m)}>{m}</button>
+                ))}
+              </div>
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button className={`btn ${isPaid ? 'btn-danger' : 'btn-green'}`} style={{ flex: 1 }} onClick={togglePaid}>
-              {isPaid ? '↩ Mark Unpaid' : '✓ Mark as Paid'}
-            </button>
             {schoolFull.address &&
-            <button className="btn btn-waze" onClick={() => openWaze(schoolFull.address)}>
+            <button className="btn btn-waze" style={{ flex: 1 }} onClick={() => openWaze(schoolFull.address)}>
                 <span>🗺</span> Navigate to School
               </button>
             }
           </div>
           {schoolFull.address && <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 8, textAlign: 'center' }}>{schoolFull.address}</div>}
           <hr className="divider" />
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary btn-sm" onClick={() => onEdit(l)}>✏️ Edit Lesson</button>
             <span className="chip">{l.frequency || 'weekly'}</span>
+            <span className="chip">{l.rateType === 'flat' ? 'Flat rate' : 'Hourly'}</span>
             <span className={`badge ${isPaid ? 'badge-green' : 'badge-red'}`}>{isPaid ? 'Paid' : 'Unpaid'}</span>
           </div>
         </div>
@@ -703,6 +798,22 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
     changePivot(toDateStr(d));
   }
 
+  const touchRef = useRef({ x: 0, y: 0, t: 0 });
+  function onTouchStart(e) {
+    const t = e.touches[0];
+    touchRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
+  }
+  function onTouchEnd(e) {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchRef.current.x;
+    const dy = t.clientY - touchRef.current.y;
+    const dt = Date.now() - touchRef.current.t;
+    if (dt > 600) return;
+    if (Math.abs(dx) < 55) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    navigate(dx > 0 ? -1 : 1);
+  }
+
   const navLabel =
   view === 'day' ? dateFromStr(pivot).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) :
   view === 'week' ? `${dateFromStr(getWeekDates(pivot)[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${dateFromStr(getWeekDates(pivot)[6]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` :
@@ -755,7 +866,7 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
         {Array.from({ length: 12 }, (_, mi) => {
           const mDates = getMonthDates(yr, mi);
           const mLessons = mDates.filter((x) => x.cur).flatMap(({ str }) => getLessonsOnDate(str, lessons).map((l) => ({ ...l, date: str })));
-          const mRev = mLessons.filter((l) => payments[payKey(l.id, l.date)]?.paid).reduce((s, l) => s + (l.rate || 0) * (l.duration / 60), 0);
+          const mRev = mLessons.filter((l) => payments[payKey(l.id, l.date)]?.paid).reduce((s, l) => s + lessonEarnings(l), 0);
           return <div key={mi} className="card" style={{ cursor: 'pointer' }} onClick={() => {changePivot(toDateStr(new Date(yr, mi, 1)));changeView('month');}}>
             <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>{new Date(yr, mi, 1).toLocaleDateString('en-US', { month: 'long' })}</div>
             <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--accent)' }}>{mLessons.length}</div>
@@ -785,18 +896,21 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
         <span>✡️ Jewish holiday &nbsp;🇺🇸 American holiday</span>
         <span>· Click an empty time slot to add a lesson</span>
         <span>· Drag a lesson block to move it</span>
+        <span>· Swipe left/right on mobile to change {view === 'year' ? 'year' : view}</span>
       </div>
 
-      {view === 'week' && <TimeGrid dates={getWeekDates(pivot)} {...gridProps} />}
-      {view === 'day' && <TimeGrid dates={[pivot]} {...gridProps} />}
-      {view === 'month' && <MonthView />}
-      {view === 'year' && <YearView />}
+      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ touchAction: 'pan-y' }}>
+        {view === 'week' && <TimeGrid dates={getWeekDates(pivot)} {...gridProps} />}
+        {view === 'day' && <TimeGrid dates={[pivot]} {...gridProps} />}
+        {view === 'month' && <MonthView />}
+        {view === 'year' && <YearView />}
+      </div>
     </div>);
 
 }
 
 /* ─── DASHBOARD ─── */
-function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalendar }) {
+function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalendar, goToPayments }) {
   const [bannerHover, setBannerHover] = useState(false);
   const today = toDateStr(new Date());
   const todayLessons = getLessonsOnDate(today, lessons);
@@ -811,8 +925,8 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
     }return arr;
   }, [lessons]);
 
-  const monthPaid = monthLessons.filter((l) => payments[payKey(l.id, l.date)]?.paid).reduce((s, l) => s + (l.rate || 0) * (l.duration / 60), 0);
-  const monthOwed = monthLessons.filter((l) => !payments[payKey(l.id, l.date)]?.paid).reduce((s, l) => s + (l.rate || 0) * (l.duration / 60), 0);
+  const monthPaid = monthLessons.filter((l) => payments[payKey(l.id, l.date)]?.paid).reduce((s, l) => s + lessonEarnings(l), 0);
+  const monthOwed = monthLessons.filter((l) => !payments[payKey(l.id, l.date)]?.paid).reduce((s, l) => s + lessonEarnings(l), 0);
 
   const allHolidays = useMemo(() => [...getJewishHolidays(now.getFullYear()), ...getAmericanHolidays(now.getFullYear())], []);
   const upcoming = allHolidays.filter((h) => h.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
@@ -822,7 +936,7 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
       {/* Banner */}
       {(()=>{
         const weekNum = weekLessons.length;
-        const monthEarned = monthLessons.filter(l=>payments[payKey(l.id,l.date)]?.paid).reduce((s,l)=>s+(l.rate||0)*(l.duration/60),0);
+        const monthEarned = monthLessons.filter(l=>payments[payKey(l.id,l.date)]?.paid).reduce((s,l)=>s+lessonEarnings(l),0);
         return (
           <div
             onClick={() => goToCalendar('day', today)}
@@ -900,10 +1014,11 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
           <div className="stat-sub">lessons</div>
           <div className="stat-hint">→ View month</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card clickable" onClick={() => goToPayments && goToPayments()}>
           <div className="stat-label">Month Earned</div>
           <div className="stat-value" style={{ color: 'var(--green)' }}>{fmtMoney(Math.round(monthPaid))}</div>
           <div className="stat-sub" style={{ color: 'var(--red)' }}>{fmtMoney(Math.round(monthOwed))} owed</div>
+          <div className="stat-hint">→ View payments</div>
         </div>
       </div>
 
@@ -1003,7 +1118,7 @@ function Schools({ schools, setSchools, lessons, payments, getSchool, showToast 
     for (let d = 1; d <= new Date(yr, mo + 1, 0).getDate(); d++) {
       const ds = toDateStr(new Date(yr, mo, d));
       getLessonsOnDate(ds, lessons).filter((l) => l.schoolId === sid).forEach((l) => {
-        count++;const amt = (l.rate || 0) * (l.duration / 60);
+        count++;const amt = lessonEarnings(l);
         if (payments[payKey(l.id, ds)]?.paid) paid += amt;else owed += amt;
       });
     }
@@ -1155,7 +1270,7 @@ function Schedule({ schools, lessons, setLessons, getSchool, showToast }) {
               <div style={{ width: 4, height: 40, borderRadius: 2, background: s.color, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600 }}>{l.studentName}</div>
-                <div style={{ fontSize: 12, color: 'var(--text3)' }}>{s.name} · {fmt12(l.startTime)}–{fmt12(addMinutes(l.startTime, l.duration))} · ${l.rate}/hr</div>
+                <div style={{ fontSize: 12, color: 'var(--text3)' }}>{s.name} · {fmt12(l.startTime)}–{fmt12(addMinutes(l.startTime, l.duration))} · ${l.rate}{l.rateType === 'flat' ? ' flat' : '/hr'}</div>
                 <span className="chip" style={{ marginTop: 3, fontSize: 10 }}>{l.frequency === 'biweekly' ? 'Every 2 weeks' : l.frequency}</span>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -1176,7 +1291,7 @@ function Schedule({ schools, lessons, setLessons, getSchool, showToast }) {
               <div style={{ width: 4, height: 40, borderRadius: 2, background: s.color, flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600 }}>{l.studentName}</div>
-                <div style={{ fontSize: 12, color: 'var(--text3)' }}>{dateFromStr(l.startDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {s.name} · {fmt12(l.startTime)} · ${l.rate}/hr</div>
+                <div style={{ fontSize: 12, color: 'var(--text3)' }}>{dateFromStr(l.startDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {s.name} · {fmt12(l.startTime)} · ${l.rate}{l.rateType === 'flat' ? ' flat' : '/hr'}</div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button className="btn btn-ghost btn-sm" onClick={() => openEdit(l)}>✏️</button>
@@ -1217,7 +1332,7 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
           const s = getSchool(l.schoolId);
           const k = payKey(l.id, ds);
           const isPaid = payments[k]?.paid;
-          const amt = Math.round((l.rate || 0) * (l.duration / 60));
+          const amt = Math.round(lessonEarnings(l));
           const dObj = dateFromStr(ds);
           const isOverdue = !isPaid && dObj < new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
           items.push({ lesson: l, date: ds, school: s, isPaid, amt, isOverdue, payKey: k });
@@ -1235,10 +1350,11 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
     return true;
   });
 
-  function toggle(k) {
-    setPayments((p) => {const np = { ...p };if (np[k]?.paid) delete np[k];else np[k] = { paid: true, paidAt: new Date().toISOString() };return np;});
-    showToast(payments[k]?.paid ? 'Marked unpaid' : 'Paid ✓');
+  function toggle(k, method) {
+    setPayments((p) => {const np = { ...p };if (np[k]?.paid) delete np[k];else np[k] = { paid: true, paidAt: new Date().toISOString(), method: method || 'Cash' };return np;});
+    showToast(payments[k]?.paid ? 'Marked unpaid' : `Paid via ${method || 'Cash'} ✓`);
   }
+  const [openMethodFor, setOpenMethodFor] = useState(null);
 
   const schoolSummary = useMemo(() => schools.map((s) => {
     const sOcc = occurrences.filter((x) => x.lesson.schoolId === s.id);
@@ -1287,21 +1403,35 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
           </tbody>
         </table></div></div> :
 
-      <div className="card"><div className="table-wrap"><table>
-          <thead><tr><th>Date</th><th>Class</th><th>School</th><th>Duration</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+      <div className="card"><div className="table-wrap"><table className="pay-table">
+          <thead><tr><th>Date</th><th>Class</th><th>School</th><th>Duration</th><th>Amount</th><th>Method</th><th>Status</th><th></th></tr></thead>
           <tbody>
             {filtered.map((item, i) =>
               <tr key={i}>
-                <td style={{ whiteSpace: 'nowrap', color: 'var(--text2)', fontSize: 12 }}>{dateFromStr(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</td>
-                <td style={{ fontWeight: 500 }}>{item.lesson.studentName}</td>
-                <td><div className="flex items-center gap-8"><div className="school-dot" style={{ background: item.school.color }} /><span style={{ color: 'var(--text2)' }}>{item.school.name}</span></div></td>
-                <td style={{ color: 'var(--text3)' }}>{item.lesson.duration}min</td>
-                <td style={{ fontWeight: 600 }}>{fmtMoney(item.amt)}</td>
-                <td>{item.isPaid ? <span className="badge badge-green">Paid</span> : item.isOverdue ? <span className="badge badge-gold">Overdue</span> : <span className="badge badge-red">Unpaid</span>}</td>
-                <td><button className={`btn ${item.isPaid ? 'btn-ghost' : 'btn-green'} btn-xs`} onClick={() => toggle(item.payKey)}>{item.isPaid ? 'Undo' : 'Pay ✓'}</button></td>
+                <td data-label="Date" style={{ whiteSpace: 'nowrap', color: 'var(--text2)', fontSize: 12 }}>{dateFromStr(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</td>
+                <td data-label="Class" style={{ fontWeight: 500 }}>{item.lesson.studentName}</td>
+                <td data-label="School"><div className="flex items-center gap-8"><div className="school-dot" style={{ background: item.school.color }} /><span style={{ color: 'var(--text2)' }}>{item.school.name}</span></div></td>
+                <td data-label="Duration" style={{ color: 'var(--text3)' }}>{item.lesson.duration}min{item.lesson.rateType === 'flat' ? ' · flat' : ''}</td>
+                <td data-label="Amount" style={{ fontWeight: 600 }}>{fmtMoney(item.amt)}</td>
+                <td data-label="Method" style={{ color: 'var(--text2)', fontSize: 12 }}>{item.isPaid ? (payments[item.payKey]?.method || '—') : '—'}</td>
+                <td data-label="Status">{item.isPaid ? <span className="badge badge-green">Paid</span> : item.isOverdue ? <span className="badge badge-gold">Overdue</span> : <span className="badge badge-red">Unpaid</span>}</td>
+                <td data-label="">
+                  {item.isPaid ? (
+                    <button className="btn btn-ghost btn-xs" onClick={() => toggle(item.payKey)}>Undo</button>
+                  ) : openMethodFor === item.payKey ? (
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      {PAY_METHODS.map((m) => (
+                        <button key={m} className="btn btn-green btn-xs" onClick={() => { toggle(item.payKey, m); setOpenMethodFor(null); }}>{m}</button>
+                      ))}
+                      <button className="btn btn-ghost btn-xs" onClick={() => setOpenMethodFor(null)}>✕</button>
+                    </div>
+                  ) : (
+                    <button className="btn btn-green btn-xs" onClick={() => setOpenMethodFor(item.payKey)}>Pay ✓</button>
+                  )}
+                </td>
               </tr>
               )}
-            {filtered.length === 0 && <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text3)', padding: 32 }}>No lessons found</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text3)', padding: 32 }}>No lessons found</td></tr>}
           </tbody>
         </table></div></div>
       }
@@ -1320,7 +1450,7 @@ function Revenue({ schools, lessons, payments, getSchool }) {
     for (let d = 1; d <= days; d++) {
       const ds = toDateStr(new Date(year, mi, d));
       getLessonsOnDate(ds, lessons).forEach((l) => {
-        const amt = (l.rate || 0) * (l.duration / 60);potential += amt;
+        const amt = lessonEarnings(l);potential += amt;
         if (payments[payKey(l.id, ds)]?.paid) {earned += amt;bySchool[l.schoolId] = (bySchool[l.schoolId] || 0) + amt;}
       });
     }
@@ -1394,7 +1524,51 @@ function Revenue({ schools, lessons, payments, getSchool }) {
 }
 
 /* ─── SETTINGS ─── */
-function Settings({ schools, lessons, payments, settings, setSettings, showToast }) {
+function Settings({ schools, lessons, setLessons, payments, settings, setSettings, showToast }) {
+  const [icsPreview, setIcsPreview] = useState(null);
+  const [icsSchoolId, setIcsSchoolId] = useState(schools[0]?.id || '');
+  function handleICS(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const r = new FileReader();
+    r.onload = (ev) => {
+      try {
+        const raw = parseICS(ev.target.result);
+        const todayStr = toDateStr(new Date());
+        const items = raw.map((x) => {
+          const sd = parseICSDate(x.start), ed = parseICSDate(x.end);
+          if (!sd) return null;
+          const dur = ed ? Math.max(15, Math.round((ed - sd) / 60000)) : 60;
+          return { summary: x.summary || '(no title)', dateStr: toDateStr(sd), timeStr: `${String(sd.getHours()).padStart(2,'0')}:${String(sd.getMinutes()).padStart(2,'0')}`, duration: dur, selected: true };
+        }).filter(Boolean).filter((x) => x.dateStr >= todayStr).sort((a, b) => (a.dateStr + a.timeStr).localeCompare(b.dateStr + b.timeStr));
+        if (!items.length) { showToast('No upcoming events found in file'); e.target.value = ''; return; }
+        setIcsPreview(items);
+      } catch (err) { showToast('Could not read .ics file'); }
+    };
+    r.readAsText(file);
+    e.target.value = '';
+  }
+  function confirmImport() {
+    const school = schools.find((s) => s.id === icsSchoolId);
+    if (!school) { showToast('Pick a school first'); return; }
+    const chosen = icsPreview.filter((x) => x.selected);
+    const newLessons = chosen.map((x) => ({
+      id: crypto.randomUUID(),
+      studentName: x.summary,
+      schoolId: icsSchoolId,
+      dayOfWeek: dateFromStr(x.dateStr).getDay(),
+      startTime: x.timeStr,
+      duration: x.duration,
+      frequency: 'once',
+      rate: school.rate || 80,
+      rateType: 'hourly',
+      startDate: x.dateStr,
+      createdAt: new Date().toISOString(),
+      fromICS: true,
+    }));
+    setLessons((ls) => [...ls, ...newLessons]);
+    showToast(`Imported ${newLessons.length} lesson${newLessons.length !== 1 ? 's' : ''} ✓`);
+    setIcsPreview(null);
+  }
   function exportData() {
     const data = { schools: load(KEY.schools), lessons: load(KEY.lessons), payments: load(KEY.payments), exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1437,6 +1611,53 @@ function Settings({ schools, lessons, payments, settings, setSettings, showToast
           </div>
         </div>
       </div>
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="section-title">📱 Import from iPhone Calendar</div>
+        <div style={{ fontSize: 12.5, color: 'var(--text3)', marginBottom: 10, lineHeight: 1.55 }}>
+          Export your iPhone Calendar as a <code>.ics</code> file, then upload it here.<br />
+          <b>iPhone:</b> share a calendar via iCloud → choose "Public Calendar" → copy link, open it in Safari, then "Save to Files."<br />
+          <b>Mac:</b> open Calendar → File → Export → Export…
+        </div>
+        <label className="btn btn-primary" style={{ cursor: 'pointer' }}>
+          ⬆️ Upload .ics file
+          <input type="file" accept=".ics,text/calendar" style={{ display: 'none' }} onChange={handleICS} />
+        </label>
+        <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 8 }}>Only future events are imported, as one-time lessons.</div>
+      </div>
+      {icsPreview && (
+        <div className="modal-overlay" onClick={() => setIcsPreview(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+            <div className="modal-header">
+              <div className="modal-title">Import {icsPreview.filter((x) => x.selected).length} event{icsPreview.filter((x) => x.selected).length !== 1 ? 's' : ''}</div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setIcsPreview(null)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">Import all as lessons for this school *</label>
+                <select className="form-input form-select" value={icsSchoolId} onChange={(e) => setIcsSchoolId(e.target.value)}>
+                  <option value="">— pick a school —</option>
+                  {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
+              <div style={{ maxHeight: 320, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 8 }}>
+                {icsPreview.map((x, i) => (
+                  <label key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={x.selected} onChange={(e) => setIcsPreview((p) => p.map((y, j) => j === i ? { ...y, selected: e.target.checked } : y))} style={{ accentColor: 'var(--accent)' }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{x.summary}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text3)' }}>{dateFromStr(x.dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {fmt12(x.timeStr)} · {x.duration}min</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setIcsPreview(null)}>Cancel</button>
+              <button className="btn btn-primary" onClick={confirmImport} disabled={!icsSchoolId || !icsPreview.some((x) => x.selected)}>Import Selected</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="card">
         <div className="section-title">💾 Data Backup</div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -1460,6 +1681,29 @@ function Settings({ schools, lessons, payments, settings, setSettings, showToast
       </div>
     </div>);
 
+}
+
+/* ─── BOTTOM NAV (mobile) ─── */
+function BottomNav({ page, setPage }) {
+  const items = [
+    { id: 'dashboard', icon: '🏠', label: 'Home' },
+    { id: 'calendar', icon: '📅', label: 'Calendar' },
+    { id: 'schools', icon: '🏫', label: 'Schools' },
+    { id: 'schedule', icon: '🕐', label: 'Schedule' },
+    { id: 'payments', icon: '💰', label: 'Payments' },
+  ];
+  return (
+    <nav className="bottom-nav">
+      <div className="bottom-nav-inner">
+        {items.map((i) => (
+          <button key={i.id} className={`bottom-nav-item${page === i.id ? ' active' : ''}`} onClick={() => setPage(i.id)}>
+            <div className="bottom-nav-icon">{i.icon}</div>
+            <div>{i.label}</div>
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
 }
 
 /* ─── APP ─── */
@@ -1487,6 +1731,7 @@ function App() {
   function goToCalendar(view, pivot) {
     setCalView(view);setCalPivot(pivot || toDateStr(new Date()));setPage('calendar');
   }
+  function goToPayments() { setPage('payments'); }
 
   // Evening notification check
   useEffect(() => {
@@ -1568,7 +1813,7 @@ function App() {
           <div style={{ fontSize: 12, color: 'var(--text3)' }}>{schools.length} schools · {lessons.length} lessons</div>
         </div>
         <div className="page-content">
-          {page === 'dashboard' && <Dashboard {...shared} goToCalendar={goToCalendar} />}
+          {page === 'dashboard' && <Dashboard {...shared} goToCalendar={goToCalendar} goToPayments={goToPayments} />}
           {page === 'calendar' && <Calendar {...shared} calView={calView} setCalView={setCalView} calPivot={calPivot} setCalPivot={setCalPivot} />}
           {page === 'schools' && <Schools {...shared} />}
           {page === 'schedule' && <Schedule {...shared} />}
@@ -1577,6 +1822,8 @@ function App() {
           {page === 'settings' && <Settings {...shared} />}
         </div>
       </div>
+
+      <BottomNav page={page} setPage={setPage} />
 
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
 
@@ -1626,8 +1873,10 @@ function LockScreen({ onUnlock }) {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#0d0d1a', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,system-ui,sans-serif'
+      position: 'fixed', inset: 0, width: '100%', minHeight: '100vh',
+      background: '#0d0d1a', display: 'flex',
+      alignItems: 'center', justifyContent: 'center', padding: '20px',
+      fontFamily: 'Inter,system-ui,sans-serif', boxSizing: 'border-box'
     }}>
       <style>{`
         @keyframes shake {
