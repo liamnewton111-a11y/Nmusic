@@ -135,8 +135,9 @@ tr:hover td{background:var(--bg3)}
 .cal-head-num{font-size:20px;font-weight:700;display:block;line-height:1.1}
 
 /* time + body cells */
-.cal-time{font-size:10px;color:var(--text3);padding:0 8px;line-height:40px;text-align:right;border-right:1px solid var(--border);background:var(--bg2);white-space:nowrap;vertical-align:top}
-.cal-cell{border-left:1px solid var(--border);border-bottom:1px solid var(--border2);height:48px;position:relative;cursor:pointer;transition:background var(--tr)}
+.cal-time{font-size:10px;color:var(--text3);padding:0 6px;text-align:right;border-right:1px solid var(--border);background:var(--bg2);white-space:nowrap;vertical-align:top;position:relative;}
+.cal-time-label{position:absolute;top:-8px;right:6px;font-size:10px;color:var(--text3);white-space:nowrap;background:var(--bg2);padding:0 2px;}
+.cal-cell{border-left:1px solid var(--border);border-top:1px solid var(--border2);position:relative;cursor:pointer;transition:background var(--tr)}
 .cal-cell:last-child{border-bottom:none}
 .cal-cell:hover{background:var(--accent-bg)}
 .cal-cell.today-col{background:color-mix(in srgb,var(--accent-bg) 50%,transparent)}
@@ -936,13 +937,16 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
           {/* Hour rows */}
           {HOURS.map((hour) =>
           <React.Fragment key={hour}>
-              <div className="cal-time">{fmt12(`${String(hour).padStart(2, '0')}:00`)}</div>
+              <div className="cal-time" style={{ height: HOUR_H }}>
+                <span className="cal-time-label">{fmt12(`${String(hour).padStart(2, '0')}:00`)}</span>
+              </div>
               {dates.map((ds, di) => {
               const hols = holidayMap[ds] || [];
               const isToday = ds === today;
               const isDragOver = dragOver && dragOver.dayIndex === di && dragOver.hour === hour;
               const dayLessons = getLessonsOnDate(ds, lessons);
               const slotLessons = dayLessons.filter((l) => {const [lh] = l.startTime.split(':').map(Number);return lh === hour;});
+              const count = slotLessons.length;
               return (
                 <div key={ds}
                 data-cell="1" data-di={di} data-hour={hour}
@@ -952,17 +956,20 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
                 onDragOver={(e) => {e.preventDefault();setDragOver({ dayIndex: di, hour });}}
                 onDragLeave={() => setDragOver(null)}
                 onDrop={(e) => {e.preventDefault();handleDrop(di, hour);}}>
-                    {slotLessons.map((l) => {
+                    {slotLessons.map((l, li) => {
                     const s = getSchool(l.schoolId);
                     const isPaid = payments[payKey(l.id, ds)]?.paid;
                     const isCancelled = payments[payKey(l.id, ds)]?.cancelled;
                     const [lh, lm] = l.startTime.split(':').map(Number);
                     const topOffset = lm / 60 * HOUR_H;
-                    const heightPx = Math.max(Math.min(l.duration / 60 * HOUR_H, HOUR_H * 6), 20);
+                    const heightPx = Math.max(Math.min(l.duration / 60 * HOUR_H, HOUR_H * 6), 22);
                     const isDraggingThis = dragging?.lesson.id === l.id;
+                    // Side-by-side like Google Calendar when multiple lessons overlap
+                    const w = count > 1 ? `calc(${100/count}% - 3px)` : 'calc(100% - 4px)';
+                    const leftPct = count > 1 ? `calc(${li * 100/count}% + 2px)` : '2px';
                     return <div key={l.id}
                     className={`lesson-block${isDraggingThis ? ' dragging' : ''}`}
-                    style={{ background: isCancelled ? 'var(--bg4)' : s.color + '28', borderLeft: `3px solid ${isCancelled ? 'var(--border2)' : s.color}`, color: isCancelled ? 'var(--text3)' : s.color, top: topOffset, height: heightPx, opacity: isCancelled ? 0.5 : 1 }}
+                    style={{ background: isCancelled ? 'var(--bg4)' : s.color + '28', borderLeft: `3px solid ${isCancelled ? 'var(--border2)' : s.color}`, color: isCancelled ? 'var(--text3)' : s.color, top: topOffset, height: heightPx, width: w, left: leftPct, right: 'auto', opacity: isCancelled ? 0.5 : 1 }}
                     draggable={!isCancelled}
                     onDragStart={(e) => {e.stopPropagation();setDragging({ lesson: l, ds });e.dataTransfer.effectAllowed = 'move';}}
                     onDragEnd={() => {setDragging(null);setDragOver(null);}}
@@ -978,7 +985,6 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity .15s', fontSize: 10, color: 'var(--accent)', fontWeight: 600, pointerEvents: 'none' }}
                   className="add-hint">+ Add</div>
                   </div>);
-
             })}
             </React.Fragment>
           )}
