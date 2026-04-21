@@ -193,7 +193,7 @@ tr:hover td{background:var(--bg3)}
 @keyframes slideUp{from{transform:translateX(-50%) translateY(12px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 
 /* MISC */
-.section-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;letter-spacing:-.1px}
 .empty-state{text-align:center;padding:48px 24px;color:var(--text3);font-size:13px}
 .empty-state-icon{font-size:36px;margin-bottom:10px}
 .chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500;background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
@@ -203,6 +203,99 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
 .mt-16{margin-top:16px}.mb-16{margin-bottom:16px}.mb-12{margin-bottom:12px}
 .text-sm{font-size:12px}.text-xs{font-size:11px}.text-2{color:var(--text2)}.text-3{color:var(--text3)}
 .fw-6{font-weight:600}.fw-7{font-weight:700}.w-full{width:100%}
+
+/* ═══ ENHANCED VISUAL POLISH ═══════════════════════════════════════ */
+
+/* Sidebar refinements */
+.sidebar{background:var(--sidebar-bg,var(--bg2));border-right:1px solid var(--border)}
+[data-theme="dark"] .sidebar{background:#0e0e20}
+[data-theme="light"] .sidebar{background:#fafafd}
+
+.sidebar-logo{padding:22px 18px 18px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border-bottom:none;border-radius:0}
+.logo-mark{background:rgba(255,255,255,.2)!important;backdrop-filter:blur(4px)}
+.logo-text{color:#fff!important;font-size:16px;font-weight:800;letter-spacing:-.5px}
+.logo-sub{color:rgba(255,255,255,.55)!important;letter-spacing:.8px}
+
+.nav-item{border-radius:8px;font-size:13px;font-weight:500;position:relative;letter-spacing:-.1px}
+.nav-item.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--accent);border-radius:0 2px 2px 0}
+.nav-section-label{font-size:10px;letter-spacing:1.2px;padding:0 10px;margin-bottom:4px;margin-top:4px}
+
+.sidebar-footer{background:var(--bg3);margin:10px;border-radius:8px;border:1px solid var(--border);padding:10px 12px;font-size:11.5px;color:var(--text2)}
+
+/* Header */
+.header{background:var(--bg2);backdrop-filter:blur(12px)}
+[data-theme="dark"] .header{background:rgba(13,13,26,.92);border-bottom-color:#1e1e3a}
+.header-title{font-size:17px;font-weight:700;letter-spacing:-.4px}
+
+/* Enhanced stat cards */
+.stat-card{border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:all .2s cubic-bezier(.4,0,.2,1)}
+.stat-card.clickable:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.25);border-color:var(--accent)}
+.stat-label{font-size:10.5px;font-weight:700;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
+.stat-value{font-size:32px;font-weight:800;line-height:1;letter-spacing:-1.5px}
+.stat-sub{font-size:12px;margin-top:8px;font-weight:500}
+.stat-hint{font-size:10px;margin-top:6px;font-weight:600;opacity:.8}
+
+/* Enhanced cards */
+.card{border-radius:12px;padding:20px;transition:box-shadow .2s}
+.card-sm{border-radius:9px;padding:12px 14px}
+
+/* School cards */
+.school-card{border-radius:12px;transition:all .22s cubic-bezier(.4,0,.2,1)}
+.school-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.school-card-top{height:4px}
+.school-name{font-size:14px;font-weight:700;letter-spacing:-.2px}
+
+/* Better buttons */
+.btn{border-radius:8px;font-weight:600;letter-spacing:-.1px;transition:all .15s cubic-bezier(.4,0,.2,1)}
+.btn-primary{box-shadow:0 2px 8px rgba(124,92,231,.35)}
+.btn-primary:hover{box-shadow:0 4px 16px rgba(124,92,231,.45);transform:translateY(-1px)}
+.btn-waze{box-shadow:0 2px 8px rgba(33,150,243,.25)}
+
+/* Badges */
+.badge{font-size:10.5px;font-weight:700;letter-spacing:.2px;padding:3px 10px}
+
+/* Pill tabs */
+.pill-tabs{border-radius:9px;padding:3px;gap:1px}
+.pill-tab{border-radius:7px;font-size:12.5px;font-weight:500;padding:7px 14px}
+.pill-tab.active{font-weight:700;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+
+/* Table */
+th{font-size:10.5px;letter-spacing:.8px;padding:11px 16px}
+td{padding:13px 16px;font-size:13px}
+tr:hover td{background:var(--bg3);transition:background .12s}
+
+/* Calendar blocks */
+.lesson-block{border-radius:6px;padding:4px 7px}
+
+/* Bottom nav */
+.bottom-nav{border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+[data-theme="dark"] .bottom-nav{background:rgba(19,19,42,.95);backdrop-filter:blur(16px)}
+.bottom-nav-item{font-size:10px;font-weight:700;letter-spacing:.2px}
+
+/* Modal */
+.modal{border-radius:16px}
+.modal-header{border-radius:16px 16px 0 0}
+.modal-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
+
+/* Pay rows */
+.pay-row{border-radius:11px;border:1px solid var(--border)}
+[data-theme="dark"] .pay-row{background:rgba(28,28,56,.6)}
+
+/* Form inputs */
+.form-input{border-radius:8px;padding:10px 13px;font-size:13.5px}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,231,.12)}
+.form-label{font-size:11.5px;font-weight:700;letter-spacing:.2px;margin-bottom:6px}
+
+/* Suggestion box */
+.suggestion-box{border-radius:12px;padding:18px}
+.suggestion-item{padding:10px 0;gap:12px}
+
+/* Scrollbar (webkit) */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
 
 /* suggestions box */
 .suggestion-box{background:var(--accent-bg);border:1px solid var(--accent);border-radius:10px;padding:16px;font-size:13px}
@@ -422,6 +515,8 @@ function doesLessonOccur(lesson,dateStr){
   if(lesson.frequency==='once')return lesson.startDate===dateStr;
   const d=dateFromStr(dateStr);
   if(lesson.dayOfWeek!==d.getDay())return false;
+  // Never show before the lesson's start date
+  if(lesson.startDate && dateStr < lesson.startDate) return false;
   const freq=lesson.frequency||'weekly';
   if(freq==='weekly')return true;
   const start=dateFromStr(lesson.startDate||'2026-01-01');
@@ -544,6 +639,11 @@ function LessonModal({ title, initial, schools, onSave, onClose }) {
   const [err, setErr] = useState('');
   const set = (patch) => { setF((p) => ({ ...p, ...patch })); setErr(''); };
   const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  // Sync dayOfWeek whenever start date changes (for all frequency types)
+  const handleDateChange = (dateVal) => {
+    const d = dateFromStr(dateVal);
+    set({ startDate: dateVal, dayOfWeek: d.getDay() });
+  };
 
   function handleSave() {
     if (!schools.length) { setErr('Please add a school first (Schools tab) before creating a lesson.'); return; }
@@ -561,8 +661,12 @@ function LessonModal({ title, initial, schools, onSave, onClose }) {
           <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">
+          <div className="form-group">
+            <label className="form-label">Class / Group Name</label>
+            <input className="form-input" autoFocus placeholder="e.g. Grade 3 Music, Choir…" value={f.studentName||''} onChange={(e) => set({ studentName: e.target.value })} />
+          </div>
           <div className="form-group"><label className="form-label">School *</label>
-            <select className="form-input form-select" autoFocus value={f.schoolId} onChange={(e) => {const s = schools.find((x) => x.id === e.target.value);set({ schoolId: e.target.value, rate: s?.rate || f.rate });}}>
+            <select className="form-input form-select" value={f.schoolId} onChange={(e) => {const s = schools.find((x) => x.id === e.target.value);set({ schoolId: e.target.value, rate: s?.rate || f.rate });}}>
               {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select></div>
 
@@ -575,15 +679,15 @@ function LessonModal({ title, initial, schools, onSave, onClose }) {
 
           {f.frequency === 'once' ?
           <div className="form-group"><label className="form-label">Date</label>
-              <input className="form-input" type="date" value={f.startDate} onChange={(e) => set({ startDate: e.target.value, dayOfWeek: dateFromStr(e.target.value).getDay() })} /></div> :
+              <input className="form-input" type="date" value={f.startDate} onChange={(e) => handleDateChange(e.target.value)} /></div> :
 
           <div className="form-row">
               <div className="form-group"><label className="form-label">Day of Week</label>
                 <select className="form-input form-select" value={f.dayOfWeek} onChange={(e) => set({ dayOfWeek: Number(e.target.value) })}>
                   {DAYS.map((d, i) => <option key={i} value={i}>{d}</option>)}
                 </select></div>
-              <div className="form-group"><label className="form-label">Start Date (for biweekly ref)</label>
-                <input className="form-input" type="date" value={f.startDate} onChange={(e) => set({ startDate: e.target.value })} /></div>
+              <div className="form-group"><label className="form-label">Lesson Start Date</label>
+                <input className="form-input" type="date" value={f.startDate} onChange={(e) => handleDateChange(e.target.value)} /></div>
             </div>
           }
 
@@ -634,6 +738,12 @@ function LessonDetailModal({ lessonDate, payments, setPayments, getSchool, schoo
     setPayments((p) => { const np = { ...p }; delete np[k]; return np; });
     showToast('Marked unpaid');
   }
+  function markCancelled() {
+    setPayments((p) => ({ ...p, [k]: { cancelled: true, cancelledAt: new Date().toISOString() } }));
+    showToast('Lesson marked cancelled');
+    onClose();
+  }
+  const isCancelled = pay?.cancelled;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -660,10 +770,18 @@ function LessonDetailModal({ lessonDate, payments, setPayments, getSchool, schoo
               <div style={{ background: 'var(--green-bg)', border: '1px solid var(--green)', borderRadius: 9, padding: '10px 14px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
                 <div>
                   <div style={{ fontSize: 11, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: .5, fontWeight: 600 }}>Paid</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--green)' }}>via {pay?.method || 'Cash'}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--green)' }}>via {pay?.method || 'Cash'}{pay?.paidAt ? ` · ${new Date(pay.paidAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : ''}</div>
                 </div>
                 <button className="btn btn-danger btn-sm" onClick={markUnpaid}>↩ Undo</button>
               </div>
+            </div>
+          ) : isCancelled ? (
+            <div style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 9, padding: '10px 14px', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+              <div>
+                <div style={{ fontSize: 11, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: .5, fontWeight: 600 }}>Cancelled</div>
+                <div style={{ fontSize: 13, color: 'var(--text2)' }}>This lesson occurrence was cancelled</div>
+              </div>
+              <button className="btn btn-secondary btn-sm" onClick={markUnpaid}>↩ Restore</button>
             </div>
           ) : (
             <div>
@@ -686,9 +804,10 @@ function LessonDetailModal({ lessonDate, payments, setPayments, getSchool, schoo
           <hr className="divider" />
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary btn-sm" style={{display:'inline-flex', alignItems:'center', gap:6}} onClick={() => onEdit(l)}><Icon name="edit" size={14} /> Edit Lesson</button>
+            {!isPaid && !isCancelled && <button className="btn btn-danger btn-sm" style={{display:'inline-flex', alignItems:'center', gap:6}} onClick={markCancelled}>✕ Cancel This Lesson</button>}
             <span className="chip">{l.frequency || 'weekly'}</span>
             <span className="chip">{l.rateType === 'flat' ? 'Flat rate' : 'Hourly'}</span>
-            <span className={`badge ${isPaid ? 'badge-green' : 'badge-red'}`}>{isPaid ? 'Paid' : 'Unpaid'}</span>
+            <span className={`badge ${isPaid ? 'badge-green' : isCancelled ? '' : 'badge-red'}`} style={isCancelled ? {background:'var(--bg3)',color:'var(--text3)'} : {}}>{isPaid ? 'Paid' : isCancelled ? 'Cancelled' : 'Unpaid'}</span>
           </div>
         </div>
       </div>
@@ -705,8 +824,10 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
   const [selected, setSelected] = useState(null);
   const [quickAdd, setQuickAdd] = useState(null);
   const [editLesson, setEditLesson] = useState(null);
-  const [dragging, setDragging] = useState(null); // {lesson, sourceDayOfWeek, sourceTime}
-  const [dragOver, setDragOver] = useState(null); // {dayIndex, hour}
+  const [dragging, setDragging] = useState(null);
+  const [dragOver, setDragOver] = useState(null);
+  const touchDragRef = useRef(null); // {lesson, ds, startX, startY}
+  const gridRef = useRef(null);
 
   function handleCellClick(dayIndex, hour, dateStr) {
     if (dragging) return;
@@ -727,6 +848,46 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
     l));
     showToast('Lesson moved ✓');
     setDragging(null);setDragOver(null);
+  }
+
+  // Touch drag: long-press to start, move to drag, release to drop
+  function onLessonTouchStart(e, l, ds) {
+    const t = e.touches[0];
+    touchDragRef.current = { lesson: l, ds, startX: t.clientX, startY: t.clientY, timer: null, active: false };
+    touchDragRef.current.timer = setTimeout(() => {
+      touchDragRef.current.active = true;
+      setDragging({ lesson: l, ds });
+      showToast('Drag to move…');
+    }, 500);
+  }
+  function onLessonTouchMove(e) {
+    if (!touchDragRef.current?.active) {
+      // Cancel long-press if moved too much
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - touchDragRef.current?.startX || 0);
+      const dy = Math.abs(t.clientY - touchDragRef.current?.startY || 0);
+      if (dx > 10 || dy > 10) clearTimeout(touchDragRef.current?.timer);
+      return;
+    }
+    e.preventDefault();
+    const t = e.touches[0];
+    // Find which cell is under the touch
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const cell = el?.closest('[data-cell]');
+    if (cell) {
+      const di = parseInt(cell.dataset.di);
+      const hour = parseInt(cell.dataset.hour);
+      setDragOver({ dayIndex: di, hour });
+    }
+  }
+  function onLessonTouchEnd(e) {
+    clearTimeout(touchDragRef.current?.timer);
+    if (touchDragRef.current?.active && dragOver) {
+      handleDrop(dragOver.dayIndex, dragOver.hour);
+    } else {
+      setDragging(null); setDragOver(null);
+    }
+    touchDragRef.current = null;
   }
 
   function handleAddLesson(data) {
@@ -770,6 +931,7 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
               const slotLessons = dayLessons.filter((l) => {const [lh] = l.startTime.split(':').map(Number);return lh === hour;});
               return (
                 <div key={ds}
+                data-cell="1" data-di={di} data-hour={hour}
                 className={`cal-cell${isToday ? ' today-col' : ''}${hols.length ? ' holiday-bg' : ''}${isDragOver ? ' drag-over' : ''}`}
                 style={{ height: HOUR_H }}
                 onClick={() => handleCellClick(di, hour, ds)}
@@ -779,19 +941,23 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
                     {slotLessons.map((l) => {
                     const s = getSchool(l.schoolId);
                     const isPaid = payments[payKey(l.id, ds)]?.paid;
+                    const isCancelled = payments[payKey(l.id, ds)]?.cancelled;
                     const [lh, lm] = l.startTime.split(':').map(Number);
                     const topOffset = lm / 60 * HOUR_H;
                     const heightPx = Math.max(Math.min(l.duration / 60 * HOUR_H, HOUR_H * 6), 20);
                     const isDraggingThis = dragging?.lesson.id === l.id;
                     return <div key={l.id}
                     className={`lesson-block${isDraggingThis ? ' dragging' : ''}`}
-                    style={{ background: s.color + '28', borderLeft: `3px solid ${s.color}`, color: s.color, top: topOffset, height: heightPx }}
-                    draggable
+                    style={{ background: isCancelled ? 'var(--bg4)' : s.color + '28', borderLeft: `3px solid ${isCancelled ? 'var(--border2)' : s.color}`, color: isCancelled ? 'var(--text3)' : s.color, top: topOffset, height: heightPx, opacity: isCancelled ? 0.5 : 1 }}
+                    draggable={!isCancelled}
                     onDragStart={(e) => {e.stopPropagation();setDragging({ lesson: l, ds });e.dataTransfer.effectAllowed = 'move';}}
                     onDragEnd={() => {setDragging(null);setDragOver(null);}}
+                    onTouchStart={(e) => { e.stopPropagation(); onLessonTouchStart(e, l, ds); }}
+                    onTouchMove={(e) => onLessonTouchMove(e)}
+                    onTouchEnd={(e) => onLessonTouchEnd(e)}
                     onClick={(e) => {e.stopPropagation();setSelected({ lesson: l, date: ds });}}>
-                        <div style={{ fontSize: 9, fontWeight: 700, overflow: 'hidden', whiteSpace: 'nowrap' }}>{l.studentName}</div>
-                        {heightPx > 22 && <div style={{ fontSize: 8, opacity: .8 }}>{fmt12(l.startTime)} · {isPaid ? '✓ Paid' : 'Unpaid'}</div>}
+                        <div style={{ fontSize: 9, fontWeight: 700, overflow: 'hidden', whiteSpace: 'nowrap' }}>{isCancelled ? '✕ ' : ''}{l.studentName}</div>
+                        {heightPx > 22 && <div style={{ fontSize: 8, opacity: .8 }}>{fmt12(l.startTime)} · {isCancelled ? 'Cancelled' : isPaid ? '✓ Paid' : 'Unpaid'}</div>}
                       </div>;
                   })}
                     {/* click-to-add hint on hover */}
@@ -994,6 +1160,8 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
       {(()=>{
         const weekNum = weekLessons.length;
         const monthEarned = monthLessons.filter(l=>payments[payKey(l.id,l.date)]?.paid).reduce((s,l)=>s+lessonEarnings(l),0);
+        const paidCount = monthLessons.filter(l=>payments[payKey(l.id,l.date)]?.paid).length;
+        const pct = monthLessons.length ? Math.round(paidCount/monthLessons.length*100) : 0;
         return (
           <div
             onClick={() => goToCalendar('day', today)}
@@ -1034,17 +1202,22 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
               </div>
 
               {/* Right side stats */}
-              <div style={{display:'flex',gap:20,flexShrink:0}}>
+              <div style={{display:'flex',gap:20,flexShrink:0,alignItems:'center'}}>
                 <div style={{textAlign:'center'}}>
-                  <div style={{fontSize:26,fontWeight:700,color:'rgba(255,255,255,.9)'}}>{weekNum}</div>
-                  <div style={{fontSize:10,opacity:.5,textTransform:'uppercase',letterSpacing:.5,fontWeight:600}}>this week</div>
+                  <div style={{fontSize:30,fontWeight:800,color:'rgba(255,255,255,.95)',letterSpacing:'-1px'}}>{weekNum}</div>
+                  <div style={{fontSize:10,opacity:.45,textTransform:'uppercase',letterSpacing:.8,fontWeight:700,marginTop:2}}>this week</div>
                 </div>
-                <div style={{width:1,background:'rgba(255,255,255,.1)'}}/>
+                <div style={{width:1,height:40,background:'rgba(255,255,255,.12)'}}/>
                 <div style={{textAlign:'center'}}>
-                  <div style={{fontSize:26,fontWeight:700,color:'rgba(255,255,255,.9)'}}>{fmtMoney(Math.round(monthEarned))}</div>
-                  <div style={{fontSize:10,opacity:.5,textTransform:'uppercase',letterSpacing:.5,fontWeight:600}}>month earned</div>
+                  <div style={{fontSize:30,fontWeight:800,color:'rgba(255,255,255,.95)',letterSpacing:'-1px'}}>{fmtMoney(Math.round(monthEarned))}</div>
+                  <div style={{fontSize:10,opacity:.45,textTransform:'uppercase',letterSpacing:.8,fontWeight:700,marginTop:2}}>month earned</div>
                 </div>
-                <div style={{alignSelf:'center',opacity:bannerHover?.6:.3,transition:'opacity .2s',fontSize:18}}>→</div>
+                <div style={{width:1,height:40,background:'rgba(255,255,255,.12)'}}/>
+                <div style={{textAlign:'center'}}>
+                  <div style={{fontSize:30,fontWeight:800,color:'rgba(255,255,255,.95)',letterSpacing:'-1px'}}>{pct}%</div>
+                  <div style={{fontSize:10,opacity:.45,textTransform:'uppercase',letterSpacing:.8,fontWeight:700,marginTop:2}}>collected</div>
+                </div>
+                <div style={{alignSelf:'center',opacity:bannerHover?.7:.25,transition:'opacity .2s',fontSize:20,fontWeight:300}}>→</div>
               </div>
             </div>
           </div>
@@ -1053,30 +1226,22 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
 
       {/* Stat cards — clickable */}
       <div className="grid-4" style={{ marginBottom: 20 }}>
-        <div className="stat-card clickable" onClick={() => goToCalendar('day', today)}>
-          <div className="stat-label">Today</div>
-          <div className="stat-value" style={{ color: 'var(--accent)' }}>{todayLessons.length}</div>
-          <div className="stat-sub">lessons</div>
-          <div className="stat-hint">→ View today</div>
-        </div>
-        <div className="stat-card clickable" onClick={() => goToCalendar('week', today)}>
-          <div className="stat-label">This Week</div>
-          <div className="stat-value">{weekLessons.length}</div>
-          <div className="stat-sub">lessons</div>
-          <div className="stat-hint">→ View week</div>
-        </div>
-        <div className="stat-card clickable" onClick={() => goToCalendar('month', today)}>
-          <div className="stat-label">This Month</div>
-          <div className="stat-value">{monthLessons.length}</div>
-          <div className="stat-sub">lessons</div>
-          <div className="stat-hint">→ View month</div>
-        </div>
-        <div className="stat-card clickable" onClick={() => goToPayments && goToPayments()}>
-          <div className="stat-label">Month Earned</div>
-          <div className="stat-value" style={{ color: 'var(--green)' }}>{fmtMoney(Math.round(monthPaid))}</div>
-          <div className="stat-sub" style={{ color: 'var(--red)' }}>{fmtMoney(Math.round(monthOwed))} owed</div>
-          <div className="stat-hint">→ View payments</div>
-        </div>
+        {[
+          { label: 'Today', value: todayLessons.length, sub: 'lessons scheduled', hint: 'View today →', color: 'var(--accent)', bg: 'var(--accent-bg)', onClick: () => goToCalendar('day', today), icon: '📅' },
+          { label: 'This Week', value: weekLessons.length, sub: 'lessons this week', hint: 'View week →', color: 'var(--blue)', bg: 'var(--blue-bg)', onClick: () => goToCalendar('week', today), icon: '📆' },
+          { label: 'This Month', value: monthLessons.length, sub: 'lessons this month', hint: 'View month →', color: 'var(--accent2)', bg: 'var(--accent-bg)', onClick: () => goToCalendar('month', today), icon: '🗓️' },
+          { label: 'Month Earned', value: fmtMoney(Math.round(monthPaid)), sub: `${fmtMoney(Math.round(monthOwed))} still owed`, hint: 'View payments →', color: 'var(--green)', bg: 'var(--green-bg)', onClick: () => goToPayments && goToPayments(), icon: '💰' },
+        ].map(({ label, value, sub, hint, color, bg, onClick, icon }) => (
+          <div key={label} className="stat-card clickable" onClick={onClick} style={{ borderTop: `3px solid ${color}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div className="stat-label" style={{ color: 'var(--text3)', marginBottom: 0 }}>{label}</div>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{icon}</div>
+            </div>
+            <div className="stat-value" style={{ color }}>{value}</div>
+            <div className="stat-sub" style={{ color: 'var(--text3)' }}>{sub}</div>
+            <div className="stat-hint" style={{ color, marginTop: 10, fontSize: 11, fontWeight: 700 }}>{hint}</div>
+          </div>
+        ))}
       </div>
 
       <div className="grid-2">
@@ -1156,7 +1321,6 @@ function Dashboard({ schools, lessons, payments, getSchool, showToast, goToCalen
 function Schools({ schools, setSchools, lessons, payments, getSchool, showToast }) {
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
-  const [smsModal, setSmsModal] = useState(null);
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
 
   function openAdd() {setForm({ name: '', address: '', headTeacher: '', phone: '', rate: 80, notes: '', color: SCHOOL_COLORS[schools.length % SCHOOL_COLORS.length] });setModal('add');}
@@ -1180,18 +1344,6 @@ function Schools({ schools, setSchools, lessons, payments, getSchool, showToast 
       });
     }
     return { count, paid: Math.round(paid), owed: Math.round(owed) };
-  }
-
-  function copySms(school) {
-    const tomorrow = new Date();tomorrow.setDate(tomorrow.getDate() + 1);
-    const tStr = toDateStr(tomorrow);
-    const tLessons = getLessonsOnDate(tStr, lessons).filter((l) => l.schoolId === school.id);
-    const dayName = tomorrow.toLocaleDateString('en-US', { weekday: 'long' });
-    const lessonList = tLessons.map((l) => `${l.studentName} at ${fmt12(l.startTime)}`).join(', ');
-    const msg = tLessons.length > 0 ?
-    `Hi ${school.headTeacher}, just a reminder that I'll be teaching at ${school.name} tomorrow (${dayName}): ${lessonList}. See you then!` :
-    `Hi ${school.headTeacher}, just a reminder that I'll be at ${school.name} tomorrow (${dayName}). Looking forward to it!`;
-    setSmsModal({ school, msg });
   }
 
   return (
@@ -1225,8 +1377,7 @@ function Schools({ schools, setSchools, lessons, payments, getSchool, showToast 
                 <div><div style={{ fontWeight: 700, color: 'var(--red)', fontSize: 13 }}>{fmtMoney(stats.owed)}</div><div style={{ fontSize: 10, color: 'var(--text3)' }}>owed</div></div>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-secondary btn-sm" style={{ flex: 1, display:'inline-flex', alignItems:'center', justifyContent:'center', gap:6 }} onClick={() => copySms(s)}><Icon name="message" size={14} /> SMS Reminder</button>
-                {s.address && <button className="btn btn-waze btn-sm" onClick={() => openWaze(s.address)} title="Navigate"><Icon name="map-pin" size={14} /></button>}
+                {s.address && <button className="btn btn-secondary btn-sm" style={{ flex:1, display:'inline-flex', alignItems:'center', justifyContent:'center', gap:6 }} onClick={() => openWaze(s.address)}><Icon name="map-pin" size={14} /> Navigate</button>}
               </div>
             </div>
           </div>;
@@ -1270,23 +1421,6 @@ function Schools({ schools, setSchools, lessons, payments, getSchool, showToast 
         </div>
       }
 
-      {smsModal &&
-      <div className="modal-overlay" onClick={() => setSmsModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
-            <div className="modal-header">
-              <div className="modal-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="message" size={16} /> SMS — {smsModal.school.headTeacher}</div>
-              <button className="btn btn-ghost btn-sm" onClick={() => setSmsModal(null)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <div style={{ background: 'var(--bg3)', borderRadius: 10, padding: 16, fontSize: 14, lineHeight: 1.7, marginBottom: 14 }}>{smsModal.msg}</div>
-              {smsModal.school.phone && <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 12 }}>To: {smsModal.school.headTeacher} · {smsModal.school.phone}</div>}
-              <div className="flex gap-8">
-                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => {navigator.clipboard.writeText(smsModal.msg);showToast('Copied ✓');}}>📋 Copy</button>
-                {smsModal.school.phone && <a href={`sms:${smsModal.school.phone}?body=${encodeURIComponent(smsModal.msg)}`} className="btn btn-secondary" style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}>Open SMS App</a>}
-              </div>
-            </div>
-          </div>
-        </div>
       }
     </div>);
 
@@ -1388,11 +1522,11 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
         getLessonsOnDate(ds, lessons).forEach((l) => {
           const s = getSchool(l.schoolId);
           const k = payKey(l.id, ds);
-          const isPaid = payments[k]?.paid;
+          const pay = payments[k];
+          const isPaid = pay?.paid;
+          const isCancelled = pay?.cancelled;
           const amt = Math.round(lessonEarnings(l));
-          const dObj = dateFromStr(ds);
-          const isOverdue = !isPaid && dObj < new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-          items.push({ lesson: l, date: ds, school: s, isPaid, amt, isOverdue, payKey: k });
+          items.push({ lesson: l, date: ds, school: s, isPaid, isCancelled, amt, payKey: k });
         });
       }
     }
@@ -1401,8 +1535,8 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
 
   const filtered = occurrences.filter((x) => {
     if (filter === 'paid' && !x.isPaid) return false;
-    if (filter === 'unpaid' && x.isPaid) return false;
-    if (filter === 'overdue' && !x.isOverdue) return false;
+    if (filter === 'unpaid' && (x.isPaid || x.isCancelled)) return false;
+    if (filter === 'cancelled' && !x.isCancelled) return false;
     if (schoolFilter !== 'all' && x.lesson.schoolId !== schoolFilter) return false;
     return true;
   });
@@ -1423,9 +1557,30 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
   return (
     <div>
       <div className="grid-3" style={{ marginBottom: 16 }}>
-        <div className="stat-card"><div className="stat-label">Total Paid</div><div className="stat-value" style={{ color: 'var(--green)' }}>{fmtMoney(occurrences.filter((x) => x.isPaid).reduce((s, x) => s + x.amt, 0))}</div></div>
-        <div className="stat-card"><div className="stat-label">Total Owed</div><div className="stat-value" style={{ color: 'var(--red)' }}>{fmtMoney(occurrences.filter((x) => !x.isPaid).reduce((s, x) => s + x.amt, 0))}</div></div>
-        <div className="stat-card"><div className="stat-label">Overdue lessons</div><div className="stat-value" style={{ color: 'var(--gold)' }}>{occurrences.filter((x) => x.isOverdue).length}</div></div>
+        <div className="stat-card" style={{ borderTop: '3px solid var(--green)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Total Paid</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--green-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>✅</div>
+          </div>
+          <div className="stat-value" style={{ color: 'var(--green)' }}>{fmtMoney(occurrences.filter((x) => x.isPaid).reduce((s, x) => s + x.amt, 0))}</div>
+          <div className="stat-sub" style={{ color:'var(--text3)' }}>{occurrences.filter(x=>x.isPaid).length} lessons paid</div>
+        </div>
+        <div className="stat-card" style={{ borderTop: '3px solid var(--red)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Total Owed</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--red-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>⏳</div>
+          </div>
+          <div className="stat-value" style={{ color: 'var(--red)' }}>{fmtMoney(occurrences.filter((x) => !x.isPaid).reduce((s, x) => s + x.amt, 0))}</div>
+          <div className="stat-sub" style={{ color:'var(--text3)' }}>{occurrences.filter(x=>!x.isPaid).length} lessons unpaid</div>
+        </div>
+        <div className="stat-card" style={{ borderTop: '3px solid var(--gold)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Collection Rate</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--gold-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>🎯</div>
+          </div>
+          <div className="stat-value" style={{ color: 'var(--gold)' }}>{occurrences.length ? Math.round(occurrences.filter(x=>x.isPaid).length/occurrences.length*100) : 0}%</div>
+          <div className="stat-sub" style={{ color:'var(--text3)' }}>lessons collected</div>
+        </div>
       </div>
 
       <div className="flex items-center justify-between mb-16" style={{ flexWrap: 'wrap', gap: 10 }}>
@@ -1435,7 +1590,7 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
             <button className={`pill-tab${view === 'schools' ? ' active' : ''}`} onClick={() => setView('schools')}>By School</button>
           </div>
           {view === 'lessons' && <div className="pill-tabs">
-            {['all', 'paid', 'unpaid', 'overdue'].map((f) => <button key={f} className={`pill-tab${filter === f ? ' active' : ''}`} onClick={() => setFilter(f)}>{f.charAt(0).toUpperCase() + f.slice(1)}</button>)}
+            {['all', 'paid', 'unpaid', 'cancelled'].map((f) => <button key={f} className={`pill-tab${filter === f ? ' active' : ''}`} onClick={() => setFilter(f)}>{f.charAt(0).toUpperCase() + f.slice(1)}</button>)}
           </div>}
         </div>
         {view === 'lessons' && <select className="form-input form-select" style={{ width: 'auto', padding: '6px 12px', fontSize: 12 }} value={schoolFilter} onChange={(e) => setSchoolFilter(e.target.value)}>
@@ -1480,17 +1635,17 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
       ) : (
         <div className="card">
           <div className="pay-desktop-only"><div className="table-wrap"><table className="pay-table">
-            <thead><tr><th>Date</th><th>Class</th><th>School</th><th>Duration</th><th>Amount</th><th>Method</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th>Date</th><th>Class</th><th>School</th><th>Amount</th><th>Paid On</th><th>Method</th><th>Status</th><th></th></tr></thead>
             <tbody>
               {filtered.map((item, i) =>
                 <tr key={i}>
-                  <td data-label="Date" style={{ whiteSpace: 'nowrap', color: 'var(--text2)', fontSize: 12 }}>{dateFromStr(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</td>
-                  <td data-label="Class" style={{ fontWeight: 500 }}>{item.lesson.studentName}</td>
-                  <td data-label="School"><div className="flex items-center gap-8"><div className="school-dot" style={{ background: item.school.color }} /><span style={{ color: 'var(--text2)' }}>{item.school.name}</span></div></td>
-                  <td data-label="Duration" style={{ color: 'var(--text3)' }}>{item.lesson.duration}min{item.lesson.rateType === 'flat' ? ' · flat' : ''}</td>
-                  <td data-label="Amount" style={{ fontWeight: 600 }}>{fmtMoney(item.amt)}</td>
-                  <td data-label="Method" style={{ color: 'var(--text2)', fontSize: 12 }}>{item.isPaid ? (payments[item.payKey]?.method || '—') : '—'}</td>
-                  <td data-label="Status">{item.isPaid ? <span className="badge badge-green">Paid</span> : item.isOverdue ? <span className="badge badge-gold">Overdue</span> : <span className="badge badge-red">Unpaid</span>}</td>
+                  <td style={{ whiteSpace: 'nowrap', color: 'var(--text2)', fontSize: 12 }}>{dateFromStr(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</td>
+                  <td style={{ fontWeight: 500 }}>{item.lesson.studentName}</td>
+                  <td><div className="flex items-center gap-8"><div className="school-dot" style={{ background: item.school.color }} /><span style={{ color: 'var(--text2)' }}>{item.school.name}</span></div></td>
+                  <td style={{ fontWeight: 700 }}>{fmtMoney(item.amt)}</td>
+                  <td style={{ color: 'var(--text3)', fontSize: 12 }}>{item.isPaid && payments[item.payKey]?.paidAt ? new Date(payments[item.payKey].paidAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td>
+                  <td style={{ color: 'var(--text2)', fontSize: 12 }}>{item.isPaid ? (payments[item.payKey]?.method || '—') : '—'}</td>
+                  <td>{item.isPaid ? <span className="badge badge-green">✓ Paid</span> : item.isCancelled ? <span className="badge" style={{background:'var(--bg3)',color:'var(--text3)'}}>Cancelled</span> : <span className="badge badge-red">Unpaid</span>}</td>
                   <td data-label="">
                     {item.isPaid ? (
                       <button className="btn btn-ghost btn-xs" onClick={() => toggle(item.payKey)}>Undo</button>
@@ -1516,12 +1671,12 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
                 <div style={{ width: 4, height: 40, borderRadius: 2, background: item.school.color, flexShrink: 0 }} />
                 <div className="pay-row-left">
                   <div className="pay-row-title">{item.lesson.studentName}</div>
-                  <div className="pay-row-sub">{dateFromStr(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · {item.school.name}{item.isPaid && payments[item.payKey]?.method ? ` · ${payments[item.payKey].method}` : ''}</div>
+                  <div className="pay-row-sub">{dateFromStr(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · {item.school.name}{item.isPaid && payments[item.payKey]?.method ? ` · via ${payments[item.payKey].method}` : ''}{item.isPaid && payments[item.payKey]?.paidAt ? ` · paid ${new Date(payments[item.payKey].paidAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : ''}</div>
                 </div>
                 <div className="pay-row-right">
                   <div className="pay-row-amt">{fmtMoney(item.amt)}</div>
                   {item.isPaid ? (
-                    <button className="btn btn-ghost btn-xs" onClick={() => toggle(item.payKey)}>Paid · Undo</button>
+                    <button className="btn btn-ghost btn-xs" onClick={() => toggle(item.payKey)}>✓ Paid · Undo</button>
                   ) : openMethodFor === item.payKey ? (
                     <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent:'flex-end' }}>
                       {PAY_METHODS.map((m) => (
@@ -1530,7 +1685,7 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
                       <button className="btn btn-ghost btn-xs" onClick={() => setOpenMethodFor(null)}><Icon name="close" size={12} /></button>
                     </div>
                   ) : (
-                    <button className="btn btn-green btn-xs" onClick={() => setOpenMethodFor(item.payKey)}>{item.isOverdue ? 'Overdue' : 'Mark paid'}</button>
+                    <button className="btn btn-green btn-xs" onClick={() => setOpenMethodFor(item.payKey)}>Mark paid</button>
                   )}
                 </div>
               </div>
@@ -1581,9 +1736,32 @@ function Revenue({ schools, lessons, payments, getSchool }) {
         </div>
       </div>
       <div className="grid-3" style={{ marginBottom: 20 }}>
-        <div className="stat-card"><div className="stat-label">Year Earned</div><div className="stat-value" style={{ color: 'var(--accent)' }}>{fmtMoney(totalYear)}</div></div>
-        <div className="stat-card"><div className="stat-label">Year Potential</div><div className="stat-value">{fmtMoney(totalPotential)}</div></div>
-        <div className="stat-card"><div className="stat-label">Collection Rate</div><div className="stat-value" style={{ color: 'var(--green)' }}>{totalPotential ? Math.round(totalYear / totalPotential * 100) : 0}%</div></div>
+        <div className="stat-card" style={{ borderTop: '3px solid var(--accent)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Year Earned</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--accent-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>💵</div>
+          </div>
+          <div className="stat-value" style={{ color: 'var(--accent)' }}>{fmtMoney(totalYear)}</div>
+          <div className="stat-sub" style={{ color:'var(--text3)' }}>collected so far</div>
+        </div>
+        <div className="stat-card" style={{ borderTop: '3px solid var(--blue)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Year Potential</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--blue-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>📈</div>
+          </div>
+          <div className="stat-value" style={{ color:'var(--blue)' }}>{fmtMoney(totalPotential)}</div>
+          <div className="stat-sub" style={{ color:'var(--text3)' }}>if all paid</div>
+        </div>
+        <div className="stat-card" style={{ borderTop: '3px solid var(--green)' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+            <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Collection Rate</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--green-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>🎯</div>
+          </div>
+          <div className="stat-value" style={{ color: 'var(--green)' }}>{totalPotential ? Math.round(totalYear / totalPotential * 100) : 0}%</div>
+          <div style={{ marginTop:10, height:5, background:'var(--bg3)', borderRadius:99 }}>
+            <div style={{ height:'100%', width:`${totalPotential ? Math.round(totalYear/totalPotential*100) : 0}%`, background:'var(--green)', borderRadius:99, transition:'width .6s ease' }} />
+          </div>
+        </div>
       </div>
 
       {tab === 'monthly' &&
@@ -1693,8 +1871,8 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
       <div className="card" style={{ marginBottom: 14 }}>
         <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="bell" size={16} /> Notifications</div>
         <div className="flex items-center justify-between mb-16">
-          <div><div style={{ fontWeight: 600, fontSize: 13 }}>Evening reminder</div><div style={{ fontSize: 12, color: 'var(--text3)' }}>Notified about next day's lessons</div></div>
-          <label className="toggle"><input type="checkbox" checked={settings.notifEnabled || false} onChange={(e) => setSettings((s) => ({ ...s, notifEnabled: e.target.checked }))} /><span className="toggle-slider" /></label>
+          <div><div style={{ fontWeight: 600, fontSize: 13 }}>Evening reminder</div><div style={{ fontSize: 12, color: 'var(--text3)', marginTop:3, lineHeight:1.5 }}>Shows a <b>browser notification</b> on this device each evening with tomorrow's lessons. The app must be open in a tab for this to work — it does not send emails or texts.</div></div>
+          <label className="toggle" style={{flexShrink:0, marginLeft:12}}><input type="checkbox" checked={settings.notifEnabled || false} onChange={(e) => setSettings((s) => ({ ...s, notifEnabled: e.target.checked }))} /><span className="toggle-slider" /></label>
         </div>
         <div className="form-row">
           <div className="form-group"><label className="form-label">Notification time</label>
@@ -1772,7 +1950,77 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
         <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text3)' }}>{schools.length} schools · {lessons.length} lessons · {Object.keys(payments).length} payment records</div>
       </div>
 
-      <div className="card" style={{marginTop:14}}>
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="download" size={16} /> Monthly Revenue Report</div>
+        <div style={{ fontSize: 12.5, color: 'var(--text3)', marginBottom: 12, lineHeight: 1.55 }}>
+          Generate a printable PDF summary of your lessons and payments for any month. Open it, then use your device's <b>Share → Print</b> or <b>Ctrl+P</b> to save as PDF and email it to yourself or your accountant.
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
+          <select className="form-input form-select" style={{ width: 'auto' }}
+            id="report-month"
+            defaultValue={new Date().getMonth()}>
+            {['January','February','March','April','May','June','July','August','September','October','November','December'].map((m,i) =>
+              <option key={i} value={i}>{m}</option>
+            )}
+          </select>
+          <select className="form-input form-select" style={{ width: 'auto' }}
+            id="report-year"
+            defaultValue={new Date().getFullYear()}>
+            {[2024,2025,2026,2027].map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <button className="btn btn-primary" onClick={() => {
+            const mo = parseInt(document.getElementById('report-month').value);
+            const yr = parseInt(document.getElementById('report-year').value);
+            const monthName = ['January','February','March','April','May','June','July','August','September','October','November','December'][mo];
+            const days = new Date(yr, mo+1, 0).getDate();
+            const items = [];
+            for (let d = 1; d <= days; d++) {
+              const ds = toDateStr(new Date(yr, mo, d));
+              getLessonsOnDate(ds, lessons).forEach(l => {
+                const s = schools.find(x => x.id === l.schoolId) || {name:'Unknown'};
+                const k = payKey(l.id, ds);
+                const p = payments[k];
+                items.push({ date: ds, name: l.studentName, school: s.name, duration: l.duration, amt: Math.round(lessonEarnings(l)), isPaid: p?.paid, isCancelled: p?.cancelled, method: p?.method||'', paidAt: p?.paidAt||'' });
+              });
+            }
+            const totalPaid = items.filter(x=>x.isPaid).reduce((s,x)=>s+x.amt,0);
+            const totalOwed = items.filter(x=>!x.isPaid&&!x.isCancelled).reduce((s,x)=>s+x.amt,0);
+            const rows = items.map(x=>`<tr style="border-bottom:1px solid #eee">
+              <td style="padding:8px 12px">${dateFromStr(x.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</td>
+              <td style="padding:8px 12px">${x.name}</td>
+              <td style="padding:8px 12px">${x.school}</td>
+              <td style="padding:8px 12px;text-align:right">$${x.amt}</td>
+              <td style="padding:8px 12px;text-align:center"><span style="padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;background:${x.isPaid?'#d4edda':x.isCancelled?'#f0f0f0':'#f8d7da'};color:${x.isPaid?'#155724':x.isCancelled?'#666':'#721c24'}">${x.isPaid?`✓ Paid via ${x.method}`:x.isCancelled?'Cancelled':'Unpaid'}</span></td>
+            </tr>`).join('');
+            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Noon Music — ${monthName} ${yr}</title>
+            <style>body{font-family:system-ui,sans-serif;padding:40px;color:#1a1a2e;max-width:900px;margin:0 auto}h1{font-size:24px;font-weight:800;margin-bottom:4px}h2{font-size:14px;color:#666;font-weight:400;margin-bottom:32px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px 12px;background:#f4f4f8;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#666}
+            .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}.box{background:#f4f4f8;border-radius:10px;padding:16px}.box-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#666;margin-bottom:6px}.box-value{font-size:24px;font-weight:800}
+            @media print{body{padding:20px}}</style></head><body>
+            <h1>🎵 Noon Music</h1><h2>${monthName} ${yr} — Revenue Report</h2>
+            <div class="summary">
+              <div class="box"><div class="box-label">Total Lessons</div><div class="box-value">${items.filter(x=>!x.isCancelled).length}</div></div>
+              <div class="box"><div class="box-label">Total Paid</div><div class="box-value" style="color:#155724">$${totalPaid}</div></div>
+              <div class="box"><div class="box-label">Total Owed</div><div class="box-value" style="color:#721c24">$${totalOwed}</div></div>
+            </div>
+            <table><thead><tr><th>Date</th><th>Class</th><th>School</th><th style="text-align:right">Amount</th><th style="text-align:center">Status</th></tr></thead><tbody>${rows}</tbody></table>
+            <div style="margin-top:24px;font-size:12px;color:#999">Generated ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+            </body></html>`;
+            const w = window.open('','_blank');
+            w.document.write(html);
+            w.document.close();
+            setTimeout(()=>w.print(),500);
+          }}>📄 Generate PDF Report</button>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}>✡️ Jewish Calendar</div>
+        <div style={{ fontSize: 12.5, color: 'var(--text3)', lineHeight: 1.6 }}>
+          Jewish holidays are calculated automatically for every year using the Hebrew calendar algorithm — they update each year without any action needed. The calendar adjusts for leap years and all holiday variations.
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 14 }}>
         <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="lock" size={16} /> Access</div>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
           <div>
