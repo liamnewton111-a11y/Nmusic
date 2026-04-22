@@ -536,6 +536,10 @@ function lessonEarnings(l){
 }
 const PAY_METHODS=['Venmo','Zelle','Cash','ACH','Check'];
 function addMinutes(t,mins){const[h,m]=t.split(':').map(Number);const tot=h*60+m+mins;return`${String(Math.floor(tot/60)%24).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`}
+function getThreeDayDates(pivot){
+  const d=dateFromStr(pivot);
+  return Array.from({length:3},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return toDateStr(x)});
+}
 function getWeekDates(pivot){
   const d=dateFromStr(pivot),start=new Date(d);start.setDate(d.getDate()-d.getDay());
   return Array.from({length:7},(_,i)=>{const x=new Date(start);x.setDate(start.getDate()+i);return toDateStr(x)});
@@ -659,13 +663,9 @@ function LessonModal({ title, initial, schools, onSave, onClose }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{title}</div>
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+          <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text2)',fontSize:22,lineHeight:1,padding:'4px 8px',borderRadius:8,minWidth:36,minHeight:36,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
         </div>
         <div className="modal-body">
-          <div className="form-group">
-            <label className="form-label">Class / Group Name</label>
-            <input className="form-input" autoFocus placeholder="e.g. Grade 3 Music, Choir…" value={f.studentName||''} onChange={(e) => set({ studentName: e.target.value })} />
-          </div>
           <div className="form-group"><label className="form-label">School *</label>
             <select className="form-input form-select" value={f.schoolId} onChange={(e) => {const s = schools.find((x) => x.id === e.target.value);set({ schoolId: e.target.value, rate: s?.rate || f.rate });}}>
               {schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -757,7 +757,7 @@ function LessonDetailModal({ lessonDate, payments, setPayments, getSchool, schoo
               <div style={{ fontSize: 12, color: 'var(--text3)' }}>{dateFromStr(ds).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
             </div>
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+          <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text2)',fontSize:22,lineHeight:1,padding:'4px 8px',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',minWidth:36,minHeight:36}}>✕</button>
         </div>
         <div className="modal-body">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
@@ -836,7 +836,7 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
     const pad = (m) => String(m).padStart(2, '0');
     setQuickAdd({
       studentName: '', schoolId: schools[0]?.id || '',
-      dayOfWeek: dayIndex, startTime: `${pad(hour)}:00`,
+      dayOfWeek: dateFromStr(dateStr).getDay(), startTime: `${pad(hour)}:00`,
       duration: 60, frequency: 'weekly',
       rate: schools[0]?.rate || 80, startDate: dateStr
     });
@@ -845,8 +845,9 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
   function handleDrop(dayIndex, hour) {
     if (!dragging) return;
     const pad = (m) => String(m).padStart(2, '0');
+    const actualDow = dateFromStr(dates[dayIndex]).getDay();
     setLessons((ls) => ls.map((l) => l.id === dragging.lesson.id ?
-    { ...l, dayOfWeek: dayIndex, startTime: `${pad(hour)}:00` } :
+    { ...l, dayOfWeek: actualDow, startTime: `${pad(hour)}:00` } :
     l));
     showToast('Lesson moved ✓');
     setDragging(null);setDragOver(null);
@@ -1035,6 +1036,7 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
   function navigate(dir) {
     const d = dateFromStr(pivot);
     if (view === 'day') d.setDate(d.getDate() + dir);else
+    if (view === '3day') d.setDate(d.getDate() + dir * 3);else
     if (view === 'week') d.setDate(d.getDate() + dir * 7);else
     if (view === 'month') d.setMonth(d.getMonth() + dir);else
     d.setFullYear(d.getFullYear() + dir);
@@ -1060,6 +1062,7 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
   const navLabel =
   view === 'day' ? dateFromStr(pivot).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) :
   view === 'week' ? `${dateFromStr(getWeekDates(pivot)[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${dateFromStr(getWeekDates(pivot)[6]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` :
+  view === '3day' ? (() => { const ds = getThreeDayDates(pivot); return `${dateFromStr(ds[0]).toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${dateFromStr(ds[2]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`; })() :
   view === 'month' ? dateFromStr(pivot).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) :
   pivotDate.getFullYear().toString();
 
@@ -1125,13 +1128,13 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
     <div>
       <div className="flex items-center justify-between mb-16" style={{ flexWrap: 'wrap', gap: 10 }}>
         <div className="pill-tabs">
-          {['day', 'week', 'month', 'year'].map((v) => <button key={v} className={`pill-tab${view === v ? ' active' : ''}`} onClick={() => changeView(v)}>{v.charAt(0).toUpperCase() + v.slice(1)}</button>)}
+          {[['day','Day'],['3day','3 Day'],['week','Week'],['month','Month']].map(([v,label]) => <button key={v} className={`pill-tab${view === v ? ' active' : ''}`} onClick={() => changeView(v)}>{label}</button>)}
         </div>
         <div className="flex items-center gap-8">
           <button className="btn btn-secondary btn-sm" onClick={() => navigate(-1)}>←</button>
           <span style={{ fontSize: 13, fontWeight: 600, minWidth: 220, textAlign: 'center' }}>{navLabel}</span>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate(1)}>→</button>
-          <button className="btn btn-ghost btn-sm" onClick={() => {changePivot(today);if (view === 'year') changeView('week');}}>Today</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => {changePivot(today);if (view === 'year') changeView('3day');}}>Today</button>
         </div>
       </div>
 
@@ -1140,7 +1143,7 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
         {view === 'week' && <TimeGrid dates={getWeekDates(pivot)} {...gridProps} />}
         {view === 'day' && <TimeGrid dates={[pivot]} {...gridProps} />}
         {view === 'month' && <MonthView />}
-        {view === 'year' && <YearView />}
+        {view === '3day' && <TimeGrid dates={getThreeDayDates(pivot)} {...gridProps} />}
       </div>
     </div>);
 
