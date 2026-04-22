@@ -1048,34 +1048,39 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
     changePivot(toDateStr(d));
   }
 
-  const touchRef = useRef({ x: 0, y: 0, t: 0, lockAxis: null });
+  const touchRef = useRef({ x: 0, y: 0, t: 0, lockAxis: null, moved: false });
   function onTouchStart(e) {
     const t = e.touches[0];
-    touchRef.current = { x: t.clientX, y: t.clientY, t: Date.now(), lockAxis: null };
-    setDragDx(0);
-    setDragging(true);
+    touchRef.current = { x: t.clientX, y: t.clientY, t: Date.now(), lockAxis: null, moved: false };
+    // Do NOT set dragging=true here — wait until user actually moves horizontally.
+    // This lets taps pass through to buttons/cells normally.
   }
   function onTouchMove(e) {
     if (!touchRef.current) return;
     const t = e.touches[0];
     const dx = t.clientX - touchRef.current.x;
     const dy = t.clientY - touchRef.current.y;
-    // lock axis after a small movement
-    if (!touchRef.current.lockAxis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+    if (!touchRef.current.lockAxis && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) {
       touchRef.current.lockAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (touchRef.current.lockAxis === 'x') {
+        touchRef.current.moved = true;
+        setDragging(true);
+      }
     }
     if (touchRef.current.lockAxis === 'x') {
       setDragDx(dx);
     }
   }
   function onTouchEnd(e) {
+    if (!touchRef.current.moved) {
+      // Pure tap — don't interfere with click events at all
+      return;
+    }
     const t = e.changedTouches[0];
     const dx = t.clientX - touchRef.current.x;
-    const dy = t.clientY - touchRef.current.y;
     const dt = Date.now() - touchRef.current.t;
     setDragging(false);
     setDragDx(0);
-    if (touchRef.current.lockAxis !== 'x') return;
     const threshold = Math.min(window.innerWidth * 0.18, 90);
     const swipedFar = Math.abs(dx) > threshold;
     const swipedFast = dt < 400 && Math.abs(dx) > 40;
