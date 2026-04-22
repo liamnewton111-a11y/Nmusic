@@ -1577,7 +1577,7 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
         <div className="stat-card" style={{ borderTop: '3px solid var(--green)' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
             <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Total Paid</div>
-            <div style={{ width:32, height:32, borderRadius:8, background:'var(--green-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>✅</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--green-bg)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--green)' }}><Icon name="check" size={16} /></div>
           </div>
           <div className="stat-value" style={{ color: 'var(--green)' }}>{fmtMoney(occurrences.filter((x) => x.isPaid).reduce((s, x) => s + x.amt, 0))}</div>
           <div className="stat-sub" style={{ color:'var(--text3)' }}>{occurrences.filter(x=>x.isPaid).length} lessons paid</div>
@@ -1585,7 +1585,7 @@ function Payments({ schools, lessons, payments, setPayments, getSchool, showToas
         <div className="stat-card" style={{ borderTop: '3px solid var(--red)' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
             <div className="stat-label" style={{ color:'var(--text3)', marginBottom:0 }}>Total Owed</div>
-            <div style={{ width:32, height:32, borderRadius:8, background:'var(--red-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>⏳</div>
+            <div style={{ width:32, height:32, borderRadius:8, background:'var(--red-bg)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--red)' }}><Icon name="clock" size={16} /></div>
           </div>
           <div className="stat-value" style={{ color: 'var(--red)' }}>{fmtMoney(occurrences.filter((x) => !x.isPaid).reduce((s, x) => s + x.amt, 0))}</div>
           <div className="stat-sub" style={{ color:'var(--text3)' }}>{occurrences.filter(x=>!x.isPaid).length} lessons unpaid</div>
@@ -1960,8 +1960,8 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
       <div className="card">
         <div className="section-title" style={{display:'inline-flex', alignItems:'center', gap:8}}><Icon name="database" size={16} /> Data Backup</div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button className="btn btn-secondary" onClick={exportData}>⬇️ Export JSON</button>
-          <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>⬆️ Import JSON<input type="file" accept=".json" style={{ display: 'none' }} onChange={importData} /></label>
+          <button className="btn btn-secondary" style={{display:'inline-flex',alignItems:'center',gap:6}} onClick={exportData}><Icon name="download" size={14} /> Export JSON</button>
+          <label className="btn btn-secondary" style={{ cursor: 'pointer', display:'inline-flex', alignItems:'center', gap:6 }}><Icon name="upload" size={14} /> Import JSON<input type="file" accept=".json" style={{ display: 'none' }} onChange={importData} /></label>
           <button className="btn btn-danger" style={{display:'inline-flex', alignItems:'center', gap:6}} onClick={() => {if (confirm('Clear ALL data?')) {[KEY.schools, KEY.lessons, KEY.payments].forEach((k) => localStorage.removeItem(k));showToast('Cleared');}}}><Icon name="trash" size={14} /> Clear All</button>
         </div>
         <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text3)' }}>{schools.length} schools · {lessons.length} lessons · {Object.keys(payments).length} payment records</div>
@@ -2013,7 +2013,7 @@ function Settings({ schools, lessons, setLessons, payments, settings, setSetting
             <style>body{font-family:system-ui,sans-serif;padding:40px;color:#1a1a2e;max-width:900px;margin:0 auto}h1{font-size:24px;font-weight:800;margin-bottom:4px}h2{font-size:14px;color:#666;font-weight:400;margin-bottom:32px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:10px 12px;background:#f4f4f8;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#666}
             .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}.box{background:#f4f4f8;border-radius:10px;padding:16px}.box-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#666;margin-bottom:6px}.box-value{font-size:24px;font-weight:800}
             @media print{body{padding:20px}}</style></head><body>
-            <h1>🎵 Noon Music</h1><h2>${monthName} ${yr} — Revenue Report</h2>
+            <h1>Noon Music</h1><h2>${monthName} ${yr} — Revenue Report</h2>
             <div class="summary">
               <div class="box"><div class="box-label">Total Lessons</div><div class="box-value">${items.filter(x=>!x.isCancelled).length}</div></div>
               <div class="box"><div class="box-label">Total Paid</div><div class="box-value" style="color:#155724">$${totalPaid}</div></div>
@@ -2076,7 +2076,7 @@ function BottomNav({ page, setPage }) {
 }
 
 /* ─── APP ─── */
-function App() {
+function App({ user }) {
   const [page, setPage] = useState(() => localStorage.getItem('nm_page') || 'dashboard');
   const [schools, setSchools] = useState(() => load(KEY.schools));
   const [lessons, setLessons] = useState(() => load(KEY.lessons));
@@ -2087,6 +2087,47 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [calView, setCalView] = useState('week');
   const [calPivot, setCalPivot] = useState(toDateStr(new Date()));
+  const [hydrated, setHydrated] = useState(false);
+  const [syncStatus, setSyncStatus] = useState('connecting');
+
+  // Pull data from Firestore on login + listen for remote changes
+  useEffect(() => {
+    if (!user || !window.fb) return;
+    let firstSnapshot = true;
+    const unsub = window.fb.subscribeUserData(user.uid, (data) => {
+      if (data) {
+        if (Array.isArray(data.schools)) setSchools(data.schools);
+        if (Array.isArray(data.lessons)) setLessons(data.lessons);
+        if (data.payments && typeof data.payments === 'object') setPayments(data.payments);
+        if (data.settings && typeof data.settings === 'object') setSettings(data.settings);
+      } else if (firstSnapshot) {
+        // New user with no cloud data yet — seed from whatever's in localStorage (if any)
+        const seed = {
+          schools: load(KEY.schools),
+          lessons: load(KEY.lessons),
+          payments: load(KEY.payments, {}),
+          settings: load(KEY.settings, { theme: 'dark', notifEnabled: false, notifTime: '20:00' })
+        };
+        window.fb.saveUserData(user.uid, seed).catch(()=>{});
+      }
+      firstSnapshot = false;
+      setHydrated(true);
+      setSyncStatus('synced');
+    });
+    return unsub;
+  }, [user]);
+
+  // Push local changes to Firestore (debounced) — only after initial hydration
+  useEffect(() => {
+    if (!hydrated || !user || !window.fb) return;
+    setSyncStatus('saving');
+    const t = setTimeout(() => {
+      window.fb.saveUserData(user.uid, { schools, lessons, payments, settings })
+        .then(() => setSyncStatus('synced'))
+        .catch(() => setSyncStatus('offline'));
+    }, 600);
+    return () => clearTimeout(t);
+  }, [hydrated, user, schools, lessons, payments, settings]);
 
   useEffect(() => {document.documentElement.setAttribute('data-theme', settings.theme || 'dark');save(KEY.settings, settings);}, [settings]);
   useEffect(() => {save(KEY.schools, schools);}, [schools]);
@@ -2146,7 +2187,7 @@ function App() {
     <>
       <div className={`sidebar${sidebarOpen ? ' open' : ''}`}>
         <div className="sidebar-logo">
-          <div className="logo-mark" style={{ color: '#fff' }}><Icon name="music" size={20} stroke={2.2} /></div>
+          <div className="logo-mark" style={{ color: '#fff', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 800, fontSize: 15, letterSpacing: '-0.5px' }}>NM</div>
           <div><div className="logo-text">Noon Music</div><div className="logo-sub">Teacher Dashboard</div></div>
         </div>
         <nav className="sidebar-nav">
@@ -2174,8 +2215,8 @@ function App() {
         <div className="header">
           <div className="flex items-center gap-8">
             <button className="hamburger" onClick={() => setSidebarOpen(o => !o)}
-              style={{display:'none',alignItems:'center',justifyContent:'center',width:36,height:36,borderRadius:8,background:'var(--bg3)',border:'1px solid var(--border)',cursor:'pointer',fontSize:18,flexShrink:0}}>
-              ☰
+              style={{display:'none',alignItems:'center',justifyContent:'center',width:36,height:36,borderRadius:8,background:'var(--bg3)',border:'1px solid var(--border)',cursor:'pointer',flexShrink:0}}>
+              <Icon name="menu" size={18} />
             </button>
             <div className="header-title">{titles[page] || page}</div>
           </div>
@@ -2320,13 +2361,156 @@ function LockScreen({ onUnlock }) {
   );
 }
 
+function AuthScreen() {
+  const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'reset'
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  const [show, setShow] = useState(false);
+  const [err, setErr] = useState('');
+  const [info, setInfo] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function submit() {
+    setErr(''); setInfo(''); setBusy(true);
+    try {
+      if (mode === 'signup') {
+        if (pw.length < 6) throw new Error('Password must be at least 6 characters.');
+        await window.fb.signUp(email.trim(), pw);
+      } else if (mode === 'signin') {
+        await window.fb.signIn(email.trim(), pw);
+      } else if (mode === 'reset') {
+        await window.fb.resetPassword(email.trim());
+        setInfo('Password reset email sent. Check your inbox.');
+      }
+    } catch (e) {
+      const msg = (e?.code || e?.message || '').toString();
+      if (msg.includes('invalid-credential') || msg.includes('wrong-password')) setErr('Wrong email or password.');
+      else if (msg.includes('email-already-in-use')) setErr('An account with that email already exists.');
+      else if (msg.includes('invalid-email')) setErr('That email address looks invalid.');
+      else if (msg.includes('user-not-found')) setErr('No account found with that email.');
+      else if (msg.includes('network')) setErr('Network error — check your connection.');
+      else setErr(e.message || 'Something went wrong.');
+    } finally { setBusy(false); }
+  }
+
+  return (
+    <div style={{ position:'fixed', inset:0, width:'100%', minHeight:'100vh', background:'#0d0d1a', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', fontFamily:'Inter,system-ui,sans-serif', boxSizing:'border-box' }}>
+      <div style={{ background:'#13132a', border:'1px solid #2a2a52', borderRadius:20, padding:'44px 40px', width:'100%', maxWidth:380, boxShadow:'0 20px 60px rgba(0,0,0,0.5)', textAlign:'center' }}>
+        <div style={{ width:56, height:56, background:'#7c5ce7', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', margin:'0 auto 20px' }}><Icon name="music" size={26} stroke={2.2} /></div>
+        <div style={{ fontSize:22, fontWeight:700, color:'#edf2f7', marginBottom:4 }}>Noon Music</div>
+        <div style={{ fontSize:13, color:'#64748b', marginBottom:28 }}>
+          {mode === 'signin' && 'Sign in to sync across your devices'}
+          {mode === 'signup' && 'Create your account'}
+          {mode === 'reset' && 'Reset your password'}
+        </div>
+
+        <input type="email" value={email} onChange={e=>{setEmail(e.target.value); setErr('');}}
+          onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="Email" autoFocus
+          style={{ width:'100%', background:'#1c1c38', border:'1px solid #2a2a52', borderRadius:10, padding:'12px 16px', color:'#edf2f7', fontSize:15, fontFamily:'inherit', outline:'none', marginBottom:12, boxSizing:'border-box' }}/>
+
+        {mode !== 'reset' && (
+          <div style={{ position:'relative', marginBottom:14 }}>
+            <input type={show?'text':'password'} value={pw} onChange={e=>{setPw(e.target.value); setErr('');}}
+              onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="Password"
+              style={{ width:'100%', background:'#1c1c38', border:`1px solid ${err?'#ff7675':'#2a2a52'}`, borderRadius:10, padding:'12px 44px 12px 16px', color:'#edf2f7', fontSize:15, fontFamily:'inherit', outline:'none', boxSizing:'border-box' }}/>
+            <button onClick={()=>setShow(s=>!s)} style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'#64748b', display:'flex', alignItems:'center', justifyContent:'center', padding:0 }}><Icon name={show?'eye-off':'eye'} size={18}/></button>
+          </div>
+        )}
+
+        {err && <div style={{ color:'#ff7675', fontSize:12, marginBottom:10 }}>{err}</div>}
+        {info && <div style={{ color:'#68d391', fontSize:12, marginBottom:10 }}>{info}</div>}
+
+        <button onClick={submit} disabled={busy} style={{ width:'100%', background:'#7c5ce7', color:'#fff', border:'none', borderRadius:10, padding:'13px 0', fontSize:15, fontWeight:600, cursor:busy?'wait':'pointer', fontFamily:'inherit', opacity:busy?0.7:1, marginTop:8 }}>
+          {busy ? 'Please wait…' : (mode==='signin'?'Sign In':mode==='signup'?'Create Account':'Send Reset Email')}
+        </button>
+
+        <div style={{ marginTop:20, fontSize:12, color:'#a0aec0', display:'flex', flexDirection:'column', gap:6 }}>
+          {mode === 'signin' && <>
+            <div><span style={{ color:'#64748b' }}>No account? </span><a onClick={()=>{setMode('signup');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Create one</a></div>
+            <div><a onClick={()=>{setMode('reset');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Forgot password?</a></div>
+          </>}
+          {mode === 'signup' && <div><span style={{ color:'#64748b' }}>Already have an account? </span><a onClick={()=>{setMode('signin');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Sign in</a></div>}
+          {mode === 'reset' && <div><a onClick={()=>{setMode('signin');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Back to sign in</a></div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Root() {
-  const [unlocked, setUnlocked] = useState(() => localStorage.getItem(LOCK_KEY) === 'yes');
-  if (!unlocked) return <LockScreen onUnlock={() => setUnlocked(true)} />;
-  return <App />;
+  const [fbReady, setFbReady] = useState(() => !!window.fb);
+  const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    if (window.fb) { setFbReady(true); return; }
+    const h = () => setFbReady(true);
+    window.addEventListener('fb-ready', h);
+    return () => window.removeEventListener('fb-ready', h);
+  }, []);
+
+  useEffect(() => {
+    if (!fbReady) return;
+    const unsub = window.fb.onAuthChange((u) => { setUser(u || null); setAuthChecked(true); });
+    return unsub;
+  }, [fbReady]);
+
+  if (!fbReady || !authChecked) {
+    return <div style={{ position:'fixed', inset:0, background:'#0d0d1a', color:'#a0aec0', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Inter,system-ui,sans-serif', fontSize:14 }}>Loading…</div>;
+  }
+  if (!user) return <AuthScreen />;
+  return <App user={user} />;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDM0R_ZOlzqTVfT4lSoCGji2r18FVmZ36U",
+    authDomain: "noonmusic.firebaseapp.com",
+    projectId: "noonmusic",
+    storageBucket: "noonmusic.firebasestorage.app",
+    messagingSenderId: "724189620614",
+    appId: "1:724189620614:web:35619e21b330057c23a407",
+    measurementId: "G-EQ64GNPCZZ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window.fb = {
+    auth, db,
+    signUp: (email, pw) => createUserWithEmailAndPassword(auth, email, pw),
+    signIn: (email, pw) => signInWithEmailAndPassword(auth, email, pw),
+    signOutUser: () => signOut(auth),
+    resetPassword: (email) => sendPasswordResetEmail(auth, email),
+    onAuthChange: (cb) => onAuthStateChanged(auth, cb),
+    saveUserData: (uid, data) => setDoc(doc(db, 'users', uid), data, { merge: true }),
+    getUserData: async (uid) => { const s = await getDoc(doc(db, 'users', uid)); return s.exists() ? s.data() : null; },
+    subscribeUserData: (uid, cb) => onSnapshot(doc(db, 'users', uid), (snap) => cb(snap.exists() ? snap.data() : null))
+  };
+  window.dispatchEvent(new Event('fb-ready'));
 </script>
 </body>
 </html>
