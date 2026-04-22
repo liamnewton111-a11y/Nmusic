@@ -1033,6 +1033,10 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
     return map;
   }, [pivot]);
 
+  const [slideDir, setSlideDir] = useState(0); // -1 = slide in from left, +1 = slide in from right
+  const [dragDx, setDragDx] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
   function navigate(dir) {
     const d = dateFromStr(pivot);
     if (view === 'day') d.setDate(d.getDate() + dir);else
@@ -1040,22 +1044,42 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
     if (view === 'week') d.setDate(d.getDate() + dir * 7);else
     if (view === 'month') d.setMonth(d.getMonth() + dir);else
     d.setFullYear(d.getFullYear() + dir);
+    setSlideDir(dir);
     changePivot(toDateStr(d));
   }
 
-  const touchRef = useRef({ x: 0, y: 0, t: 0 });
+  const touchRef = useRef({ x: 0, y: 0, t: 0, lockAxis: null });
   function onTouchStart(e) {
     const t = e.touches[0];
-    touchRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
+    touchRef.current = { x: t.clientX, y: t.clientY, t: Date.now(), lockAxis: null };
+    setDragDx(0);
+    setDragging(true);
+  }
+  function onTouchMove(e) {
+    if (!touchRef.current) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchRef.current.x;
+    const dy = t.clientY - touchRef.current.y;
+    // lock axis after a small movement
+    if (!touchRef.current.lockAxis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      touchRef.current.lockAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    }
+    if (touchRef.current.lockAxis === 'x') {
+      setDragDx(dx);
+    }
   }
   function onTouchEnd(e) {
     const t = e.changedTouches[0];
     const dx = t.clientX - touchRef.current.x;
     const dy = t.clientY - touchRef.current.y;
     const dt = Date.now() - touchRef.current.t;
-    if (dt > 600) return;
-    if (Math.abs(dx) < 55) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    setDragging(false);
+    setDragDx(0);
+    if (touchRef.current.lockAxis !== 'x') return;
+    const threshold = Math.min(window.innerWidth * 0.18, 90);
+    const swipedFar = Math.abs(dx) > threshold;
+    const swipedFast = dt < 400 && Math.abs(dx) > 40;
+    if (!swipedFar && !swipedFast) return;
     navigate(dx > 0 ? -1 : 1);
   }
 
@@ -1139,11 +1163,31 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
       </div>
 
 
-      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ touchAction: 'pan-y' }}>
-        {view === 'week' && <TimeGrid dates={getWeekDates(pivot)} {...gridProps} />}
-        {view === 'day' && <TimeGrid dates={[pivot]} {...gridProps} />}
-        {view === 'month' && <MonthView />}
-        {view === '3day' && <TimeGrid dates={getThreeDayDates(pivot)} {...gridProps} />}
+      <div
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{ touchAction: 'pan-y', overflow: 'hidden' }}
+      >
+        <style>{`
+          @keyframes cal-slide-in-right { from { transform: translateX(100%); opacity: .4 } to { transform: translateX(0); opacity: 1 } }
+          @keyframes cal-slide-in-left  { from { transform: translateX(-100%); opacity: .4 } to { transform: translateX(0); opacity: 1 } }
+          .cal-slide-wrap { will-change: transform; }
+          .cal-slide-wrap.anim-right { animation: cal-slide-in-right .22s ease-out }
+          .cal-slide-wrap.anim-left  { animation: cal-slide-in-left  .22s ease-out }
+          .cal-slide-wrap.dragging   { transition: none }
+          .cal-slide-wrap.snap-back  { transition: transform .18s ease-out }
+        `}</style>
+        <div
+          key={pivot + '|' + view}
+          className={`cal-slide-wrap ${dragging ? 'dragging' : (dragDx === 0 && slideDir !== 0 ? (slideDir > 0 ? 'anim-right' : 'anim-left') : 'snap-back')}`}
+          style={{ transform: dragging ? `translateX(${dragDx}px)` : undefined }}
+        >
+          {view === 'week' && <TimeGrid dates={getWeekDates(pivot)} {...gridProps} />}
+          {view === 'day' && <TimeGrid dates={[pivot]} {...gridProps} />}
+          {view === 'month' && <MonthView />}
+          {view === '3day' && <TimeGrid dates={getThreeDayDates(pivot)} {...gridProps} />}
+        </div>
       </div>
     </div>);
 
@@ -2425,11 +2469,7 @@ function AuthScreen() {
         </button>
 
         <div style={{ marginTop:20, fontSize:12, color:'#a0aec0', display:'flex', flexDirection:'column', gap:6 }}>
-          {mode === 'signin' && <>
-            <div><span style={{ color:'#64748b' }}>No account? </span><a onClick={()=>{setMode('signup');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Create one</a></div>
-            <div><a onClick={()=>{setMode('reset');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Forgot password?</a></div>
-          </>}
-          {mode === 'signup' && <div><span style={{ color:'#64748b' }}>Already have an account? </span><a onClick={()=>{setMode('signin');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Sign in</a></div>}
+          {mode === 'signin' && <div><a onClick={()=>{setMode('reset');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Forgot password?</a></div>}
           {mode === 'reset' && <div><a onClick={()=>{setMode('signin');setErr('');setInfo('');}} style={{ color:'#9d7fef', cursor:'pointer' }}>Back to sign in</a></div>}
         </div>
       </div>
