@@ -152,9 +152,8 @@ tr:hover td{background:var(--bg3)}
 .cal-head-num{font-size:20px;font-weight:700;display:block;line-height:1.1}
 
 /* time + body cells */
-.cal-time{font-size:10px;color:var(--text3);padding:0 6px;text-align:right;border-right:1px solid var(--border);background:var(--bg2);white-space:nowrap;vertical-align:top;position:relative;}
-.cal-time-label{position:absolute;top:-6px;right:6px;font-size:10px;color:var(--text3);white-space:nowrap;background:var(--bg2);padding:1px 3px;line-height:1;font-weight:500;}
-.cal-grid > .cal-time:first-of-type .cal-time-label{top:2px}
+.cal-time{font-size:10px;color:var(--text3);padding:4px 7px 0 4px;text-align:right;border-right:1px solid var(--border);background:var(--bg2);white-space:nowrap;vertical-align:top;position:relative;overflow:visible;}
+.cal-time-label{display:block;font-size:10px;color:var(--text3);white-space:nowrap;line-height:1;font-weight:600;letter-spacing:.2px;text-align:right;}
 .cal-cell{border-left:1px solid var(--border);border-top:1px solid var(--border2);position:relative;cursor:pointer;transition:background var(--tr)}
 .cal-cell:last-child{border-bottom:none}
 .cal-cell:hover{background:var(--accent-bg)}
@@ -939,7 +938,7 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
   return (
     <>
       <div className="cal-container">
-        <div className="cal-grid" style={{ gridTemplateColumns: `58px repeat(${numCols},1fr)` }}>
+        <div className="cal-grid" style={{ gridTemplateColumns: `62px repeat(${numCols},1fr)` }}>
           {/* Header row */}
           <div style={{ background: 'var(--bg3)', borderBottom: '1px solid var(--border)' }} />
           {dates.map((ds, di) => {
@@ -1032,7 +1031,7 @@ function TimeGrid({ dates, lessons, payments, getSchool, schools, setLessons, se
 /* ─── CALENDAR PAGE ─── */
 function Calendar({ schools, lessons, setLessons, payments, setPayments, getSchool, showToast, calView, setCalView, calPivot, setCalPivot }) {
   const today = toDateStr(new Date());
-  const [view, setView] = useState(calView || 'week');
+  const [view, setView] = useState(calView || '3day');
   const [pivot, setPivot] = useState(calPivot || today);
   const pivotDate = dateFromStr(pivot);
 
@@ -1068,12 +1067,14 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
 
   const touchRef = useRef({ x: 0, y: 0, t: 0, lockAxis: null, moved: false });
   function onTouchStart(e) {
+    if (view === 'month') return;
     const t = e.touches[0];
     touchRef.current = { x: t.clientX, y: t.clientY, t: Date.now(), lockAxis: null, moved: false };
     // Do NOT set dragging=true here — wait until user actually moves horizontally.
     // This lets taps pass through to buttons/cells normally.
   }
   function onTouchMove(e) {
+    if (view === 'month') return;
     if (!touchRef.current) return;
     const t = e.touches[0];
     const dx = t.clientX - touchRef.current.x;
@@ -1090,6 +1091,7 @@ function Calendar({ schools, lessons, setLessons, payments, setPayments, getScho
     }
   }
   function onTouchEnd(e) {
+    if (view === 'month') return;
     if (!touchRef.current.moved) {
       setDragging(false);
       setDragDx(0);
@@ -2264,7 +2266,7 @@ th{text-align:left;padding:10px 12px;background:#f8f8fc;font-size:10px;text-tran
 }
 
 /* ─── BOTTOM NAV (mobile) ─── */
-function BottomNav({ page, setPage }) {
+function BottomNav({ page, setPage, openCalendar }) {
   const items = [
     { id: 'dashboard', icon: 'home', label: 'Home' },
     { id: 'calendar', icon: 'calendar', label: 'Calendar' },
@@ -2276,7 +2278,7 @@ function BottomNav({ page, setPage }) {
     <nav className="bottom-nav">
       <div className="bottom-nav-inner">
         {items.map((i) => (
-          <button key={i.id} className={`bottom-nav-item${page === i.id ? ' active' : ''}`} onClick={() => setPage(i.id)}>
+          <button key={i.id} className={`bottom-nav-item${page === i.id ? ' active' : ''}`} onClick={() => { if (i.id === 'calendar') openCalendar(); else setPage(i.id); }}>
             <div className="bottom-nav-icon"><Icon name={i.icon} size={22} /></div>
             <div>{i.label}</div>
           </button>
@@ -2296,8 +2298,15 @@ function App({ user }) {
   const [toast, setToast] = useState(null);
   const [tweaksOpen, setTweaksOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [calView, setCalView] = useState('week');
+  const [calView, setCalView] = useState('3day');
   const [calPivot, setCalPivot] = useState(toDateStr(new Date()));
+
+  function openCalendar() {
+    setCalView('3day');
+    setCalPivot(toDateStr(new Date()));
+    setPage('calendar');
+    setSidebarOpen(false);
+  }
   const [hydrated, setHydrated] = useState(false);
   const [syncStatus, setSyncStatus] = useState('connecting');
 
@@ -2410,7 +2419,7 @@ function App({ user }) {
           <div key={s.section} className="nav-section">
               <div className="nav-section-label">{s.section}</div>
               {s.items.map((item) =>
-            <div key={item.id} className={`nav-item${page === item.id ? ' active' : ''}`} onClick={() => { setPage(item.id); setSidebarOpen(false); }}>
+            <div key={item.id} className={`nav-item${page === item.id ? ' active' : ''}`} onClick={() => { if (item.id === 'calendar') openCalendar(); else { setPage(item.id); setSidebarOpen(false); } }}>
                   <span className="nav-icon"><Icon name={item.icon} size={17} /></span>{item.label}
                 </div>
             )}
@@ -2448,7 +2457,7 @@ function App({ user }) {
         </div>
       </div>
 
-      <BottomNav page={page} setPage={setPage} />
+      <BottomNav page={page} setPage={setPage} openCalendar={openCalendar} />
 
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
 
